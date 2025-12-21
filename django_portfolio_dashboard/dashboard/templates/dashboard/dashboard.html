@@ -1,0 +1,151 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}Manage your portfolio content and analyze performance{% endblock %}
+
+{% block content %}
+<!-- Dashboard Cards -->
+<div class="dashboard-cards">
+    <div class="card">
+        <div class="card-content">
+            <div class="card-info">
+                <h3>Total Blog Posts</h3>
+                <div class="card-value">{{ total_blog_posts }}</div>
+                <div class="card-change positive">
+                    <i class="fas fa-arrow-up"></i> 12% from last month
+                </div>
+            </div>
+            <div class="card-icon blog">
+                <i class="fas fa-blog"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-content">
+            <div class="card-info">
+                <h3>Total Projects</h3>
+                <div class="card-value">{{ total_projects }}</div>
+                <div class="card-change positive">
+                    <i class="fas fa-arrow-up"></i> 8% from last month
+                </div>
+            </div>
+            <div class="card-icon project">
+                <i class="fas fa-project-diagram"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-content">
+            <div class="card-info">
+                <h3>Total Views</h3>
+                <div class="card-value">{{ total_views }}</div>
+                <div class="card-change positive">
+                    <i class="fas fa-arrow-up"></i> 24% from last month
+                </div>
+            </div>
+            <div class="card-icon view">
+                <i class="fas fa-eye"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-content">
+            <div class="card-info">
+                <h3>Engagement Rate</h3>
+                <div class="card-value">{{ engagement_rate }}%</div>
+                <div class="card-change negative">
+                    <i class="fas fa-arrow-down"></i> 2% from last month
+                </div>
+            </div>
+            <div class="card-icon engagement">
+                <i class="fas fa-comments"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Section -->
+<div class="charts-section">
+    <div class="chart-container">
+        <div class="chart-header">
+            <h3>Blog Performance</h3>
+            <div class="chart-actions">
+                <button class="chart-btn active" data-period="week">Week</button>
+                <button class="chart-btn" data-period="month">Month</button>
+                <button class="chart-btn" data-period="year">Year</button>
+            </div>
+        </div>
+        <div class="chart-wrapper">
+            <canvas id="blogPerformanceChart"></canvas>
+        </div>
+    </div>
+    
+    <div class="chart-container">
+        <div class="chart-header">
+            <h3>Content Distribution</h3>
+        </div>
+        <div class="chart-wrapper">
+            <canvas id="contentDistributionChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Analytics Insights -->
+<div class="analytics-insights">
+    <div class="insight-card">
+        <div class="insight-header">
+            <div class="insight-icon top-post">
+                <i class="fas fa-fire"></i>
+            </div>
+            <div class="insight-title">
+                <h3>Top Performing Posts</h3>
+                <p>Based on views and engagement</p>
+            </div>
+        </div>
+        <div class="insight-content">
+            {% for post in top_posts %}
+            <div class="insight-item">
+                <div>
+                    <strong>{{ post.title }}</strong>
+                    <div style="font-size: 0.85rem; color: var(--gray); margin-top: 3px;">{{ post.category }}</div>
+                </div>
+                <div>
+                    <strong>{{ post.views }}</strong>
+                    <div style="font-size: 0.85rem; color: var(--gray);">views</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div class="insight-card">
+        <div class="insight-header">
+            <div class="insight-icon top-tag">
+                <i class="fas fa-tags"></i>
+            </div>
+            <div class="insight-title">
+                <h3>Popular Tags</h3>
+                <p>Most used content tags</p>
+            </div>
+        </div>
+        <div class="insight-content">
+            {% for tag in popular_tags %}
+            <div class="insight-item">
+                <div>
+                    <strong>{{ tag.name }}</strong>
+                </div>
+                <div>
+                    <strong>{{ tag.count }}</strong>
+                    <div style="font-size: 0.85rem; color: var(--gray);">uses</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
