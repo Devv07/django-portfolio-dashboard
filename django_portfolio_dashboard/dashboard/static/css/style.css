@@ -160,28 +160,6 @@ h1, h2, h3, h4, h5, h6 {
     align-items: center;
     gap: 20px;
 }
-.notification-btn {
-    position: relative;
-    background: none;
-    border: none;
-    font-size: 1.2rem;
-    color: var(--gray);
-    cursor: pointer;
-}
-.notification-count {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    width: 18px;
-    height: 18px;
-    background: var(--accent);
-    color: white;
-    border-radius: 50%;
-    font-size: 0.7rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
 /* Dashboard Cards */
 .dashboard-cards {
     display: grid;
@@ -687,4 +665,87 @@ td {
     .search-box {
         width: 100%;
     }
+}
+
+.notification-btn {
+    position: relative;
+    background: none;
+    border: none;
+    font-size: 1.4rem;
+    color: var(--text);
+    cursor: pointer;
+}
+
+.notification-count {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #f72585;
+    color: white;
+    font-size: 0.7rem;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notification-dropdown {
+    display: none;
+    position: absolute;
+    top: 60px;
+    right: 20px;
+    width: 350px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.notification-dropdown.active {
+    display: block;
+}
+
+.notification-header {
+    padding: 15px;
+    background: var(--primary);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mark-all-read {
+    font-size: 0.85rem;
+    cursor: pointer;
+    opacity: 0.9;
+}
+
+.notification-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    gap: 12px;
+}
+
+.notification-item.unread {
+    background: #f8f9ff;
+}
+
+.notification-item.empty {
+    text-align: center;
+    color: var(--gray);
+    padding: 30px;
+}
+
+.notif-icon i {
+    font-size: 1.4rem;
+    color: var(--primary);
 }

@@ -1,0 +1,44 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block section %}
+<div class="dashboard-section active">
+    <h2>{{ title }}</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post" class="form-container">
+        {% csrf_token %}
+        <div class="form-group">
+            {{ form.title.errors }}
+            <label>Title</label>
+            {{ form.title }}
+        </div>
+        <div class="form-group">
+            {{ form.excerpt.errors }}
+            <label>Excerpt (Short Summary)</label>
+            {{ form.excerpt }}
+        </div>
+        <div class="form-group">
+            {{ form.content.errors }}
+            <label>Content</label>
+            {{ form.content }}
+        </div>
+        <div class="form-group">
+            {{ form.category.errors }}
+            <label>Category</label>
+            {{ form.category }}
+        </div>
+        <div class="form-group">
+            <label>{{ form.is_published }} Publish immediately</label>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save Post</button>
+        <a href="{% url 'manage_blog_posts' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

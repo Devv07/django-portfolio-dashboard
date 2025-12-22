@@ -1,0 +1,116 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block section %}
+<div class="dashboard-section" id="projectsSection">
+    <div class="content-table-container">
+        <div class="table-header">
+            <h2>Manage Projects</h2>
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search projects..." id="projectSearch">
+            </div>
+        </div>
+        
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Project</th>
+                        <th>Type</th>
+                        <th>Tools</th>
+                        <th>Views</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="projectTableBody">
+                    {% for project in projects %}
+                    <tr>
+                        <td>
+                            <strong>{{ project.title }}</strong>
+                            <div style="font-size: 0.85rem; color: var(--gray);">
+                                {{ project.description|truncatewords:20 }}
+                            </div>
+                        </td>
+                        <td>{{ project.get_project_type_display }}</td>
+                        <td>
+                            {% for tool in project.tools_list %}
+                                <span class="tag">{{ tool }}</span>
+                            {% empty %}
+                                <span style="color: var(--gray);">None</span>
+                            {% endfor %}
+                        </td>
+                        <td>{{ project.views|intcomma }}</td>
+                        <td>
+                            <span class="status {% if project.status == 'published' %}published{% else %}draft{% endif %}">
+                                {{ project.get_status_display|default:"Published" }}
+                            </span>
+                        </td>
+                        <td>{{ project.created_at|date:"M d, Y" }}</td>
+                        <td>
+                            <div class="table-actions">
+                                <a href="#" class="action-btn edit" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="#" class="action-btn delete" title="Delete" onclick="return confirm('Delete this project?')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                                <a href="#" class="action-btn view" title="View" target="_blank">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px; color: var(--gray);">
+                            No projects yet. Go to Upload Content to add one!
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        <div style="display: flex; justify-content: space-between; margin-top: 25px; align-items: center;">
+            <div>
+                Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ paginator.count }} projects
+            </div>
+            <div style="display: flex; gap: 10px;">
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-secondary">
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </a>
+                {% else %}
+                    <button class="btn btn-secondary" disabled>Previous</button>
+                {% endif %}
+                
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="btn btn-primary">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </a>
+                {% else %}
+                    <button class="btn btn-primary" disabled>Next</button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('projectSearch').addEventListener('keyup', function() {
+    const filter = this.value.toLowerCase();
+    const rows = document.querySelectorAll('#projectTableBody tr');
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(filter) ? '' : 'none';
+    });
+});
+</script>
+{% endblock %}

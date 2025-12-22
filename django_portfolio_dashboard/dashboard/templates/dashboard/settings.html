@@ -7,56 +7,105 @@
         <div class="section-title">
             <h2>Portfolio Settings</h2>
         </div>
-        
-        <div style="max-width: 600px;">
-            <div class="form-group">
-                <label for="portfolioTitle">Portfolio Title</label>
-                <input type="text" id="portfolioTitle" class="form-control" value="DataSphere | Data Analysis Portfolio">
-            </div>
-            
-            <div class="form-group">
-                <label for="portfolioDescription">Portfolio Description</label>
-                <textarea id="portfolioDescription" class="form-control" rows="4">Transforming raw data into actionable insights. Explore my projects, analyses, and data-driven blog posts.</textarea>
-            </div>
-            
-            <div class="form-row">
+
+        <!-- Success/Error Messages -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} mb-4">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" class="settings-form">
+            {% csrf_token %}
+
+            <div style="max-width: 700px;">
                 <div class="form-group">
-                    <label for="portfolioEmail">Contact Email</label>
-                    <input type="email" id="portfolioEmail" class="form-control" value="alex.johnson@datasphere.com">
+                    <label for="id_portfolio_title">Portfolio Title</label>
+                    {{ form.portfolio_title }}
+                    {{ form.portfolio_title.errors }}
                 </div>
+
                 <div class="form-group">
-                    <label for="portfolioPhone">Contact Phone</label>
-                    <input type="text" id="portfolioPhone" class="form-control" value="+1 (555) 123-4567">
+                    <label for="id_portfolio_description">Portfolio Description</label>
+                    {{ form.portfolio_description }}
+                    {{ form.portfolio_description.errors }}
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="id_contact_email">Contact Email</label>
+                        {{ form.contact_email }}
+                        {{ form.contact_email.errors }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_contact_phone">Contact Phone</label>
+                        {{ form.contact_phone }}
+                        {{ form.contact_phone.errors }}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Social Links</label>
+                    <div style="margin-bottom: 10px;">
+                        {{ form.github_link }}
+                        <small class="form-text">GitHub URL</small>
+                        {{ form.github_link.errors }}
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        {{ form.linkedin_link }}
+                        <small class="form-text">LinkedIn URL</small>
+                        {{ form.linkedin_link.errors }}
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        {{ form.twitter_link }}
+                        <small class="form-text">Twitter/X URL</small>
+                        {{ form.twitter_link.errors }}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Theme Color</label>
+                    <div style="display: flex; gap: 15px; margin-top: 10px; flex-wrap: wrap;">
+                        {% for color in form.theme_color %}
+                            {{ color.tag }}
+                            <label for="{{ color.id_for_label }}" style="width: 50px; height: 50px; border-radius: 10px; background: {{ color.choice_label }}; border: 4px solid {% if color.data.selected %}#fff{% else %}transparent{% endif %}; box-shadow: 0 0 0 2px {{ color.choice_label }}; cursor: pointer; display: block;"></label>
+                        {% endfor %}
+                    </div>
+                    {{ form.theme_color.errors }}
+                </div>
+
+                <div style="display: flex; gap: 15px; margin-top: 40px;">
+                    <button type="submit" name="action" value="save" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Settings
+                    </button>
+                    <button type="submit" name="action" value="reset" class="btn btn-secondary">
+                        <i class="fas fa-redo"></i> Reset to Default
+                    </button>
                 </div>
             </div>
-            
-            <div class="form-group">
-                <label for="socialLinks">Social Links</label>
-                <input type="text" id="githubLink" class="form-control" placeholder="GitHub URL" style="margin-bottom: 10px;" value="https://github.com/alexjohnson">
-                <input type="text" id="linkedinLink" class="form-control" placeholder="LinkedIn URL" style="margin-bottom: 10px;" value="https://linkedin.com/in/alexjohnson">
-                <input type="text" id="twitterLink" class="form-control" placeholder="Twitter URL" value="https://twitter.com/alexjohnson">
-            </div>
-            
-            <div class="form-group">
-                <label for="portfolioTheme">Theme Color</label>
-                <div style="display: flex; gap: 15px; margin-top: 10px;">
-                    <div style="width: 40px; height: 40px; border-radius: 8px; background: #4361ee; border: 3px solid #4361ee; cursor: pointer;"></div>
-                    <div style="width: 40px; height: 40px; border-radius: 8px; background: #3a0ca3; border: 3px solid #e0e4f5; cursor: pointer;"></div>
-                    <div style="width: 40px; height: 40px; border-radius: 8px; background: #f72585; border: 3px solid #e0e4f5; cursor: pointer;"></div>
-                    <div style="width: 40px; height: 40px; border-radius: 8px; background: #06d6a0; border: 3px solid #e0e4f5; cursor: pointer;"></div>
-                    <div style="width: 40px; height: 40px; border-radius: 8px; background: #1a1a2e; border: 3px solid #e0e4f5; cursor: pointer;"></div>
-                </div>
-            </div>
-            
-            <div style="display: flex; gap: 15px; margin-top: 30px;">
-                <button class="btn btn-primary">
-                    <i class="fas fa-save"></i> Save Settings
-                </button>
-                <button class="btn btn-secondary">
-                    <i class="fas fa-redo"></i> Reset to Default
-                </button>
-            </div>
-        </div>
+        </form>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Theme color selection visual feedback
+document.querySelectorAll('input[name="theme_color"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        document.querySelectorAll('input[name="theme_color"]').forEach(r => {
+            const label = document.querySelector(`label[for="${r.id}"]`);
+            if (r.checked) {
+                label.style.border = '4px solid #fff';
+                label.style.boxShadow = `0 0 0 2px ${this.value}`;
+            } else {
+                label.style.border = '4px solid transparent';
+                label.style.boxShadow = `0 0 0 2px ${r.value}`;
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

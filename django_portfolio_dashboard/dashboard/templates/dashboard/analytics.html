@@ -1,5 +1,6 @@
 {% extends 'dashboard/base.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block section %}
 <div class="dashboard-section" id="analyticsSection">
@@ -16,7 +17,8 @@
         <div class="charts-section" style="margin-top: 20px;">
             <div class="chart-container">
                 <div class="chart-header">
-                    <h3>Engagement Metrics</h3>
+                    <h3>Activity Overview</h3>
+                    <p style="font-size: 0.9rem; color: var(--gray);">Posts created and total views by day</p>
                 </div>
                 <div class="chart-wrapper">
                     <canvas id="engagementChart"></canvas>
@@ -25,7 +27,8 @@
             
             <div class="chart-container">
                 <div class="chart-header">
-                    <h3>Top Content Categories</h3>
+                    <h3>Content Categories</h3>
+                    <p style="font-size: 0.9rem; color: var(--gray);">Distribution of {{ insights.total_posts }} blog posts</p>
                 </div>
                 <div class="chart-wrapper">
                     <canvas id="categoriesChart"></canvas>
@@ -34,42 +37,34 @@
         </div>
         
         <div style="margin-top: 30px;">
-            <h3 style="margin-bottom: 20px;">Blog Performance Insights</h3>
+            <h3 style="margin-bottom: 20px;">Performance Summary</h3>
             <div class="analytics-insights">
                 <div class="insight-card">
                     <div class="insight-header">
                         <div class="insight-icon peak-time">
-                            <i class="fas fa-clock"></i>
+                            <i class="fas fa-chart-bar"></i>
                         </div>
                         <div class="insight-title">
-                            <h3>Peak Engagement Time</h3>
-                            <p>Best time to publish content</p>
+                            <h3>Overall Stats</h3>
+                            <p>Real numbers from your database</p>
                         </div>
                     </div>
                     <div class="insight-content">
                         <div class="insight-item">
-                            <div>
-                                <strong>Best Day:</strong>
-                            </div>
-                            <div>
-                                <strong>Wednesday</strong>
-                            </div>
+                            <div><strong>Total Posts:</strong></div>
+                            <div><strong>{{ insights.total_posts }}</strong></div>
                         </div>
                         <div class="insight-item">
-                            <div>
-                                <strong>Best Time:</strong>
-                            </div>
-                            <div>
-                                <strong>10:00 AM - 12:00 PM</strong>
-                            </div>
+                            <div><strong>Published:</strong></div>
+                            <div><strong>{{ insights.published_posts }}</strong></div>
                         </div>
                         <div class="insight-item">
-                            <div>
-                                <strong>Avg. Engagement:</strong>
-                            </div>
-                            <div>
-                                <strong>+42%</strong>
-                            </div>
+                            <div><strong>Total Views:</strong></div>
+                            <div><strong>{{ insights.total_views|intcomma }}</strong></div>
+                        </div>
+                        <div class="insight-item">
+                            <div><strong>Avg Views/Post:</strong></div>
+                            <div><strong>{{ insights.avg_views_per_post|floatformat:1 }}</strong></div>
                         </div>
                     </div>
                 </div>
@@ -77,37 +72,25 @@
                 <div class="insight-card">
                     <div class="insight-header">
                         <div class="insight-icon top-post">
-                            <i class="fas fa-chart-line"></i>
+                            <i class="fas fa-trophy"></i>
                         </div>
                         <div class="insight-title">
-                            <h3>Audience Insights</h3>
-                            <p>Reader demographics & behavior</p>
+                            <h3>Top Performers</h3>
+                            <p>Best content from your posts</p>
                         </div>
                     </div>
                     <div class="insight-content">
                         <div class="insight-item">
-                            <div>
-                                <strong>Avg. Time on Page:</strong>
-                            </div>
-                            <div>
-                                <strong>4.2 min</strong>
-                            </div>
+                            <div><strong>Top Category:</strong></div>
+                            <div><strong>{{ insights.top_category }}</strong></div>
                         </div>
                         <div class="insight-item">
-                            <div>
-                                <strong>Bounce Rate:</strong>
-                            </div>
-                            <div>
-                                <strong>32%</strong>
-                            </div>
+                            <div><strong>Most Viewed Post:</strong></div>
+                            <div><strong>"{{ insights.top_post_title }}"</strong></div>
                         </div>
                         <div class="insight-item">
-                            <div>
-                                <strong>Returning Visitors:</strong>
-                            </div>
-                            <div>
-                                <strong>28%</strong>
-                            </div>
+                            <div><strong>Its Views:</strong></div>
+                            <div><strong>{{ insights.top_post_views|intcomma }}</strong></div>
                         </div>
                     </div>
                 </div>
@@ -115,4 +98,118 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// DYNAMIC DATA - Loaded from Django context
+const engagementData = {{ engagement_chart_data|safe }};
+const categoriesData = {{ categories_chart_data|safe }};
+
+// Initialize charts with WEEK data (default)
+let currentEngagementChart;
+let currentCategoriesChart;
+
+// Activity Overview Chart (Line Chart) - DYNAMIC
+function initEngagementChart() {
+    const ctx = document.getElementById('engagementChart').getContext('2d');
+    currentEngagementChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: engagementData.week.labels,
+            datasets: [
+                {
+                    label: 'Total Views',
+                    data: engagementData.week.views,
+                    borderColor: '#36A2EB',
+                    backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    yAxisID: 'y'
+                },
+                {
+                    label: 'New Posts',
+                    data: engagementData.week.posts,
+                    borderColor: '#FF6384',
+                    backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    yAxisID: 'y1'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            interaction: { mode: 'index', intersect: false },
+            scales: {
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    beginAtZero: true,
+                    title: { display: true, text: 'Views' }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    beginAtZero: true,
+                    grid: { drawOnChartArea: false },
+                    title: { display: true, text: 'Posts' }
+                }
+            }
+        }
+    });
+}
+
+// Categories Chart (Doughnut) - DYNAMIC
+function initCategoriesChart() {
+    const ctx = document.getElementById('categoriesChart').getContext('2d');
+    currentCategoriesChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: categoriesData.labels,
+            datasets: [{
+                data: categoriesData.values,
+                backgroundColor: [
+                    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'
+                ],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'right' }
+            }
+        }
+    });
+}
+
+// Initialize charts on page load
+initEngagementChart();
+initCategoriesChart();
+
+// DYNAMIC Period Switching - Updates BOTH charts instantly
+document.querySelectorAll('.chart-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        // Update active button
+        document.querySelectorAll('.chart-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        
+        const period = this.dataset.period;
+        const periodData = engagementData[period];
+        
+        // Update Engagement Chart
+        currentEngagementChart.data.labels = periodData.labels;
+        currentEngagementChart.data.datasets[0].data = periodData.views;
+        currentEngagementChart.data.datasets[1].data = periodData.posts;
+        currentEngagementChart.update('none'); // Fast update
+        
+        // Categories chart stays the same (total distribution)
+    });
+});
+</script>
 {% endblock %}

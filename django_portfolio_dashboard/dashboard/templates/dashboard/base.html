@@ -1,14 +1,25 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DataSphere | Portfolio Dashboard</title>
+    <title>{{ settings.portfolio_title|default:"My Portfolio" }}</title>
+    <meta name="description" content="{{ settings.portfolio_description|default:"Welcome to my data portfolio" }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    
+    <!-- Dynamic Theme Color -->
+    <style>
+        :root {
+            --primary: {{ settings.theme_color|default:"#4361ee" }};
+            --primary-light: {{ settings.theme_color|default:"#4361ee" }}20;
+        }
+    </style>
+    
     {% block extra_head %}{% endblock %}
 </head>
 <body>
@@ -17,9 +28,9 @@
         <div class="sidebar" id="sidebar">
             <div class="logo">
                 <div class="logo-icon">
-                    <i class="fas fa-chart-line"></i>
+                    <i class="fas fa-laptop-code"></i>
                 </div>
-                <span>DataSphere</span>
+                <span>Portfolio</span>
             </div>
             
             <ul class="sidebar-menu">
@@ -42,32 +53,42 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'dashboard:manage_blog' %}" class="{% if active_menu == 'blog' %}active{% endif %}">
+                    <a href="{% url 'dashboard:manage_blog_posts' %}" class="{% if active_menu == 'blog' %}active{% endif %}">
                         <i class="fas fa-blog"></i>
                         <span class="menu-text">Manage Blog</span>
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'dashboard:analytics' %}" class="{% if active_menu == 'analytics' %}active{% endif %}">
+                    <a href="{% url 'dashboard:blog_analytics' %}" class="{% if active_menu == 'analytics' %}active{% endif %}">
                         <i class="fas fa-chart-bar"></i>
                         <span class="menu-text">Analytics</span>
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'dashboard:settings' %}" class="{% if active_menu == 'settings' %}active{% endif %}">
+                    <a href="{% url 'dashboard:portfolio_settings' %}" class="{% if active_menu == 'settings' %}active{% endif %}">
                         <i class="fas fa-cog"></i>
                         <span class="menu-text">Settings</span>
                     </a>
+                </li>
+                <li>
+                    <form method="post" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" style="border:none; background:none; cursor:pointer; display:flex; align-items:center; gap:12px; width:100%; padding:10px 15px; color: #dfdada;">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span class="menu-text">Logout</span>
+                        </button>
+                    </form>
                 </li>
             </ul>
             
             <div class="sidebar-footer">
                 <div class="user-info">
                     <div class="user-avatar">
+                        <!-- You can add profile picture upload later -->
                         <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80" alt="User">
                     </div>
                     <div>
-                        <div class="user-name">Alex Johnson</div>
+                        <div class="user-name">{{ request.user.get_full_name|default:request.user.username }}</div>
                         <div class="user-role">Data Analyst</div>
                     </div>
                 </div>
@@ -77,25 +98,58 @@
         <!-- Main Content -->
         <div class="main-content">
             <!-- Header -->
-            <div class="header">
-                <div class="mobile-toggle" id="mobileToggle">
-                    <i class="fas fa-bars"></i>
+            <!-- Updated Header Section in base.html - Fully Dynamic -->
+                <div class="header">
+                    <div class="mobile-toggle" id="mobileToggle">
+                        <i class="fas fa-bars"></i>
+                    </div>
+                    <div class="page-title">
+                        <h1>{{ page_title|default:settings.portfolio_title|default:"Portfolio Dashboard" }}</h1>
+                        <p>{{ page_description|default:"Manage your portfolio content and analyze performance" }}</p>
+                    </div>
+                    <div class="header-actions">
+                        <!-- Real-time Notification Button -->
+                        <button class="notification-btn" id="notificationBtn">
+                            <i class="fas fa-bell"></i>
+                            {% if unread_notifications > 0 %}
+                                <span class="notification-count">{{ unread_notifications }}</span>
+                            {% endif %}
+                        </button>
+
+                        <!-- Notification Dropdown (Hidden by default) -->
+                        <div class="notification-dropdown" id="notificationDropdown">
+                            <div class="notification-header">
+                                <h4>Notifications</h4>
+                                <span class="mark-all-read" id="markAllRead">Mark all as read</span>
+                            </div>
+                            <div class="notification-list">
+                                {% if notifications %}
+                                    {% for notif in notifications %}
+                                    <div class="notification-item {% if not notif.is_read %}unread{% endif %}" data-id="{{ notif.id }}">
+                                        <div class="notif-icon">
+                                            <i class="fas fa-{{ notif.icon }}"></i>
+                                        </div>
+                                        <div class="notif-content">
+                                            <p>{{ notif.message }}</p>
+                                            <small>{{ notif.created_at|timesince }} ago</small>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="notification-item empty">
+                                        <p>No notifications yet</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- View Public Portfolio Button -->
+                        <a href="{% url 'dashboard:profile_view' %}" class="btn btn-primary" target="_blank">
+                            <i class="fas fa-eye"></i>
+                            View Portfolio
+                        </a>
+                    </div>
                 </div>
-                <div class="page-title">
-                    <h1>Portfolio Dashboard</h1>
-                    <p>Manage your portfolio content and analyze performance</p>
-                </div>
-                <div class="header-actions">
-                    <button class="notification-btn">
-                        <i class="fas fa-bell"></i>
-                        <span class="notification-count">3</span>
-                    </button>
-                    <button class="btn btn-primary">
-                        <i class="fas fa-eye"></i>
-                        View Portfolio
-                    </button>
-                </div>
-            </div>
             
             {% block section %}
             {% endblock %}

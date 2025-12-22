@@ -1,0 +1,63 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block section %}
+<div class="dashboard-section active">
+    <div class="upload-section" style="max-width: 800px; margin: 0 auto;">
+        <div class="section-title">
+            <h2>My Profile</h2>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-success mb-4">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="text-center mb-5">
+                <div class="user-avatar large" style="margin: 0 auto 20px;">
+                    {% if settings.profile_picture %}
+                        <img src="{{ settings.profile_picture.url }}" alt="Profile">
+                    {% else %}
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d" alt="Profile">
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label>Profile Picture</label>
+                    {{ form.profile_picture }}
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>First Name</label>
+                    {{ form.first_name }}
+                </div>
+                <div class="form-group">
+                    <label>Last Name</label>
+                    {{ form.last_name }}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Bio</label>
+                {{ form.bio }}
+            </div>
+
+            <div class="form-group">
+                <label>Location</label>
+                {{ form.location }}
+            </div>
+
+            <div style="text-align: center; margin-top: 40px;">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Profile
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,95 +1,427 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
+import json
+from datetime import timedelta
+
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
+from django.db.models import Count, Sum, F
+from django.shortcuts import render, redirect, get_object_or_404
+from django.utils import timezone
+from django.core.exceptions import ObjectDoesNotExist
+
+from .forms import BlogPostForm, ProjectForm, PortfolioSettingsForm
+from .models import BlogPost, Project, PortfolioSettings
+from collections import defaultdict, OrderedDict
+
 
 @login_required
 def dashboard(request):
+    # At the top of each view function
+    settings, created = PortfolioSettings.objects.get_or_create(user=request.user)
+    # Real counts
+    total_blog_posts = BlogPost.objects.count()
+    total_projects = Project.objects.count()
+    total_views = BlogPost.objects.aggregate(total=Sum('views'))['total'] or 0
+
+    # ========== REAL CHANGE CALCULATIONS ==========
+    # Last month vs current month
+    one_month_ago = timezone.now() - timedelta(days=30)
+    two_months_ago = timezone.now() - timedelta(days=60)
+
+    # Blog posts change - REAL
+    prev_month_posts = BlogPost.objects.filter(created_at__gte=two_months_ago, created_at__lt=one_month_ago).count()
+    curr_month_posts = BlogPost.objects.filter(created_at__gte=one_month_ago).count()
+    if prev_month_posts > 0:
+        blog_posts_change = round(((curr_month_posts - prev_month_posts) / prev_month_posts) * 100, 1)
+    else:
+        blog_posts_change = 100.0 if curr_month_posts > 0 else 0.0
+
+    # Projects change - REAL
+    prev_month_projects = Project.objects.filter(created_at__gte=two_months_ago, created_at__lt=one_month_ago).count()
+    curr_month_projects = Project.objects.filter(created_at__gte=one_month_ago).count()
+    if prev_month_projects > 0:
+        projects_change = round(((curr_month_projects - prev_month_projects) / prev_month_projects) * 100, 1)
+    else:
+        projects_change = 100.0 if curr_month_projects > 0 else 0.0
+
+    # Views change - REAL
+    prev_month_views = BlogPost.objects.filter(created_at__gte=two_months_ago, created_at__lt=one_month_ago).aggregate(total=Sum('views'))['total'] or 0
+    curr_month_views = BlogPost.objects.filter(created_at__gte=one_month_ago).aggregate(total=Sum('views'))['total'] or 0
+    if prev_month_views > 0:
+        views_change = round(((curr_month_views - prev_month_views) / prev_month_views) * 100, 1)
+    else:
+        views_change = 100.0 if curr_month_views > 0 else 0.0
+
+    # ========== REAL ENGAGEMENT RATE ==========
+    if total_blog_posts > 0 and total_views > 0:
+        # Real engagement: (total views / total posts) as percentage (normalized)
+        engagement_rate = round((total_views / total_blog_posts) / 10, 1)  # Scale to realistic %
+        
+        # Real engagement change
+        prev_month_engagement_posts = BlogPost.objects.filter(created_at__gte=two_months_ago, created_at__lt=one_month_ago).count()
+        prev_month_engagement_views = BlogPost.objects.filter(created_at__gte=two_months_ago, created_at__lt=one_month_ago).aggregate(total=Sum('views'))['total'] or 0
+        if prev_month_engagement_posts > 0 and prev_month_engagement_views > 0:
+            prev_engagement = (prev_month_engagement_views / prev_month_engagement_posts) / 10
+            curr_engagement = (curr_month_views / curr_month_posts) / 10 if curr_month_posts > 0 else 0
+            engagement_change = round(((curr_engagement - prev_engagement) / prev_engagement * 100), 1) if prev_engagement > 0 else 0.0
+        else:
+            engagement_change = 0.0
+    else:
+        engagement_rate = 0.0
+        engagement_change = 0.0
+
+    # Rest of your code (top_posts, tags, charts - already real)...
+    top_posts = BlogPost.objects.order_by('-views')[:3]
+
+    # Popular tags - real
+    tag_counts = {}
+    for post in BlogPost.objects.all():
+        if post.tags:
+            for tag in [t.strip() for t in post.tags.split(',')]:
+                tag_counts[tag] = tag_counts.get(tag, 0) + 1
+    popular_tags = sorted(tag_counts.items(), key=lambda x: x[1], reverse=True)[:5]
+    popular_tags = [{'name': name, 'count': count} for name, count in popular_tags]
+
+    # Content Distribution - real categories
+    category_counts = BlogPost.objects.values('category').annotate(count=Count('id'))
+    content_distribution_data = {
+        'labels': [c['category'].capitalize() for c in category_counts],
+        'values': [c['count'] for c in category_counts],
+    }
+
+    # Blog Performance - real views by day
+    def get_performance_data(days):
+        end = timezone.now()
+        start = end - timedelta(days=days)
+        dates = OrderedDict()
+        current = start.date()
+        while current <= end.date():
+            key = current.strftime('%b %d' if days <= 31 else '%b %Y')
+            dates[key] = 0
+            current += timedelta(days=1)
+        
+        # Aggregate views by date
+        view_data = BlogPost.objects.filter(created_at__gte=start)\
+            .extra(select={'day': "DATE(created_at)"})\
+            .values('day')\
+            .annotate(views=Sum('views'))
+        
+        for item in view_data:
+            day_str = item['day'].strftime('%b %d' if days <= 31 else '%b %Y')
+            if day_str in dates:
+                dates[day_str] = item['views']
+        
+        return {
+            'labels': list(dates.keys()),
+            'data': list(dates.values())
+        }
+
+    blog_performance_data = {
+        'week': get_performance_data(7),
+        'month': get_performance_data(30),
+        'year': get_performance_data(365),
+    }
+
     context = {
-        'total_blog_posts': 24,
-        'total_projects': 16,
-        'total_views': 5842,
-        'engagement_rate': 4.8,
-        'top_posts': [
-            {'title': 'Building Interactive Dashboards', 'category': 'Tutorial', 'views': 1245},
-            {'title': 'Impact of Inflation Analysis', 'category': 'Analysis', 'views': 982},
-            {'title': 'Data Visualization Tools 2023', 'category': 'Tools', 'views': 756},
-        ],
-        'popular_tags': [
-            {'name': 'Python', 'count': 12},
-            {'name': 'Data Visualization', 'count': 9},
-            {'name': 'Machine Learning', 'count': 7},
-            {'name': 'Tutorial', 'count': 6},
-        ],
-        'unread_notifications': 3,
+        'total_blog_posts': total_blog_posts,
+        'total_projects': total_projects,
+        'total_views': total_views,
+        'blog_posts_change': blog_posts_change,
+        'projects_change': projects_change,
+        'views_change': views_change,
+        'engagement_rate': engagement_rate,
+        'engagement_change': engagement_change,
+        'top_posts': top_posts,
+        'popular_tags': popular_tags,
+        'blog_performance_data': json.dumps(blog_performance_data),
+        'content_distribution_data': json.dumps(content_distribution_data),
     }
     return render(request, 'dashboard/dashboard.html', context)
 
+# views.py
 @login_required
-def upload_content(request):
-    if request.method == 'POST':
-        # Handle form submission
-        messages.success(request, 'Content uploaded successfully!')
-        return redirect('upload_content')
+def upload_content(request, tab='blog'):
+    settings, created = PortfolioSettings.objects.get_or_create(user=request.user)
     
+    blog_form = BlogPostForm()
+    project_form = ProjectForm()
+
+    if request.method == 'POST':
+        action = request.POST.get('action', 'publish')
+
+        if tab == 'blog':
+            blog_form = BlogPostForm(request.POST, request.FILES)
+            if blog_form.is_valid():
+                post = blog_form.save(commit=False)
+                post.author = request.user
+                post.status = 'published' if action == 'publish' else 'draft'
+                post.save()
+                messages.success(request, f'Blog post "{post.title}" successfully {"published" if action == "publish" else "saved as draft"}!')
+                return redirect('dashboard:upload_content', tab='blog')
+            else:
+                messages.error(request, "Please correct the errors below.")
+        
+        elif tab == 'project':
+            project_form = ProjectForm(request.POST, request.FILES)
+            if project_form.is_valid():
+                project = project_form.save(commit=False)
+                project.author = request.user
+                project.save()
+                messages.success(request, f'Project "{project.title}" added successfully!')
+                return redirect('dashboard:upload_content', tab='project')
+            else:
+                messages.error(request, "Please correct the errors below.")
+
     context = {
-        'unread_notifications': 3,
+        'settings': settings,
+        'active_menu': 'upload',
+        'blog_form': blog_form,
+        'project_form': project_form,
+        'active_tab': tab,
     }
-    return render(request, 'dashboard/upload.html', context)
+    return render(request, 'dashboard/upload_content.html', context)
 
 @login_required
 def manage_projects(request):
+    settings, created = PortfolioSettings.objects.get_or_create(user=request.user)
+    
+    # Show ALL projects
+    project_list = Project.objects.all().order_by('-created_at')
+    
+    paginator = Paginator(project_list, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
     context = {
-        'projects': [
-            {
-                'title': 'Sales Performance Dashboard',
-                'description': 'Interactive sales tracking dashboard',
-                'type': 'Dashboard',
-                'tools': ['Power BI', 'SQL'],
-                'views': 1245,
-                'status': 'published',
-                'date': 'May 15, 2023'
-            },
-            # Add more projects...
-        ],
-        'unread_notifications': 3,
+        'settings': settings,
+        'active_menu': 'projects',
+        'projects': page_obj,
+        'page_obj': page_obj,
+        'paginator': paginator,
     }
-    return render(request, 'dashboard/project.html', context)
+    return render(request, 'dashboard/projects_list.html', context)
 
 @login_required
-def manage_blog(request):
+def manage_blog_posts(request):
+    settings, created = PortfolioSettings.objects.get_or_create(user=request.user)
+    
+    # This line shows ALL posts (published + draft)
+    blog_posts = BlogPost.objects.all().order_by('-created_at')
+    
+    paginator = Paginator(blog_posts, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     context = {
-        'blog_posts': [
-            {
-                'title': 'Building Interactive Dashboards with Python',
-                'description': 'Learn how to create interactive business dashboards',
-                'category': 'Tutorial',
-                'views': 1245,
-                'likes': 124,
-                'comments': 28,
-                'status': 'published',
-                'date': 'May 15, 2023'
-            },
-            # Add more posts...
-        ],
-        'unread_notifications': 3,
+        'settings': settings,
+        'active_menu': 'blog',
+        'blog_posts': page_obj,  # This sends posts to template
+        'page_obj': page_obj,
+        'paginator': paginator,
     }
-    return render(request, 'dashboard/blogs.html', context)
+    return render(request, 'dashboard/blog_list.html', context)
 
 @login_required
-def analytics(request):
+def create_blog_post(request):
+    # At the top of each view function
+    settings, created = PortfolioSettings.objects.get_or_create(user=request.user)
+    if request.method == 'POST':
+        form = BlogPostForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = request.user
+            post.save()
+            messages.success(request, 'Blog post published successfully!')
+            return redirect('manage_blog_posts')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = BlogPostForm()
+
+    return render(request, 'dashboard/blog_form.html', {'form': form, 'title': 'Create New Blog Post'})
+
+@login_required
+def edit_blog_post(request, pk):
+
+    # At the top of each view function
+    settings, created = PortfolioSettings.objects.get_or_create(user=request.user)
+    post = get_object_or_404(BlogPost, pk=pk)
+    if request.method == 'POST':
+        form = BlogPostForm(request.POST, instance=post)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Blog post updated successfully!')
+            return redirect('manage_blog_posts')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = BlogPostForm(instance=post)
+
+    return render(request, 'dashboard/blog_form.html', {
+        'form': form,
+        'title': 'Edit Blog Post',
+        'post': post
+    })
+
+@login_required
+def delete_blog_post(request, pk):
+    # At the top of each view function
+    settings, created = PortfolioSettings.objects.get_or_create(user=request.user)
+    post = get_object_or_404(BlogPost, pk=pk)
+    if request.method == 'POST':
+        post.delete()
+        messages.success(request, 'Blog post deleted successfully!')
+        return redirect('manage_blog_posts')
+    return render(request, 'dashboard/blog_confirm_delete.html', {'post': post})
+
+def blog_detail(request, slug):
+    # At the top of each view function
+    settings, created = PortfolioSettings.objects.get_or_create(user=request.user)
+    post = get_object_or_404(BlogPost, slug=slug)
+    post.views = F('views') + 1
+    post.save(update_fields=['views'])
+    post.refresh_from_db()
+    return render(request, 'dashboard/blog_detail.html', {'post': post})
+
+
+@login_required
+def blog_analytics(request):
+
+    # At the top of each view function
+    settings, created = PortfolioSettings.objects.get_or_create(user=request.user)
+    # Real Category Distribution
+    categories = BlogPost.objects.values('category').annotate(count=Count('id')).order_by('-count')
+    categories_chart_data = {
+        'labels': [cat['category'].capitalize() for cat in categories[:5]] or ['No posts yet'],
+        'values': [cat['count'] for cat in categories[:5]] or [0],
+    }
+
+    # Real Total Stats
+    total_posts = BlogPost.objects.count()
+    total_views = BlogPost.objects.aggregate(total=Sum('views'))['total'] or 0
+    published_posts = BlogPost.objects.filter(status='published').count()
+
+    # Real Engagement Data by Period
+    def get_period_data(days):
+        end_date = timezone.now()
+        start_date = end_date - timedelta(days=days)
+        
+        # Group posts by day
+        daily_stats = defaultdict(lambda: {'views': 0, 'posts': 0})
+        
+        posts = BlogPost.objects.filter(created_at__gte=start_date)
+        for post in posts:
+            day_str = post.created_at.strftime('%b %d')
+            daily_stats[day_str]['posts'] += 1
+            daily_stats[day_str]['views'] += post.views
+        
+        # Create ordered labels (last N days)
+        labels = []
+        views_list = []
+        posts_list = []
+        
+        current_date = start_date.date()
+        for i in range(days):
+            day_str = (current_date + timedelta(days=i)).strftime('%b %d')
+            stats = daily_stats[day_str]
+            labels.append(day_str)
+            views_list.append(stats['views'])
+            posts_list.append(stats['posts'])
+        
+        return {
+            'labels': labels,
+            'views': views_list,
+            'posts': posts_list
+        }
+
+    # Generate data for all periods
+    engagement_chart_data = {
+        'week': get_period_data(7),
+        'month': get_period_data(30),
+        'quarter': get_period_data(90),
+    }
+
+    # Real Insights
+    if total_posts > 0:
+        avg_views = round(total_views / total_posts, 1)
+        top_post = BlogPost.objects.order_by('-views').first()
+        top_category_obj = categories.first() if categories else None
+    else:
+        avg_views = 0
+        top_post = None
+        top_category_obj = None
+
+    insights = {
+        'total_posts': total_posts,
+        'total_views': total_views,
+        'published_posts': published_posts,
+        'avg_views_per_post': avg_views,
+        'top_category': top_category_obj['category'].capitalize() if top_category_obj else 'None',
+        'top_post_title': top_post.title[:30] + '...' if top_post else 'None',
+        'top_post_views': top_post.views if top_post else 0,
+    }
+
     context = {
-        'unread_notifications': 3,
+        'engagement_chart_data': json.dumps(engagement_chart_data),
+        'categories_chart_data': json.dumps(categories_chart_data),
+        'insights': insights,
     }
     return render(request, 'dashboard/analytics.html', context)
 
 @login_required
-def settings(request):
+def portfolio_settings(request):
+    # At the top of each view function
+    settings, created = PortfolioSettings.objects.get_or_create(user=request.user)
+    try:
+        settings = request.user.portfoliosettings
+    except ObjectDoesNotExist:
+        settings = PortfolioSettings.objects.create(user=request.user)
+
     if request.method == 'POST':
-        # Handle settings update
-        messages.success(request, 'Settings updated successfully!')
-        return redirect('settings')
+        form = PortfolioSettingsForm(request.POST, instance=settings)
+        if form.is_valid():
+            form.save()
+            
+            action = request.POST.get('action')
+            if action == 'reset':
+                # Reset to defaults
+                settings.portfolio_title = "My Data Portfolio"
+                settings.portfolio_description = "Welcome to my data analysis portfolio."
+                settings.contact_email = ""
+                settings.contact_phone = ""
+                settings.github_link = ""
+                settings.linkedin_link = ""
+                settings.twitter_link = ""
+                settings.theme_color = "#4361ee"
+                settings.save()
+                messages.success(request, "Settings reset to default!")
+            else:
+                messages.success(request, "Settings saved successfully!")
+            
+            return redirect('dashboard:portfolio_settings')
+    else:
+        form = PortfolioSettingsForm(instance=settings)
+
+    return render(request, 'dashboard/settings.html', {
+        'form': form,
+    })
+
+
+@login_required
+def profile_view(request):
+    settings, created = PortfolioSettings.objects.get_or_create(user=request.user)
     
-    context = {
-        'unread_notifications': 3,
-    }
-    return render(request, 'dashboard/settings.html', context)
+    if request.method == 'POST':
+        form = PortfolioSettingsForm(request.POST, request.FILES, instance=settings)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Profile updated successfully!")
+            return redirect('profile_view')
+    else:
+        form = PortfolioSettingsForm(instance=settings)
+    
+    return render(request, 'dashboard/profile_view.html', {
+        'form': form,
+        'settings': settings,
+        'active_menu': 'profile',
+    })

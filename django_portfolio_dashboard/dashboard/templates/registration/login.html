@@ -1,47 +1,118 @@
+{% load static %}
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Admin Login</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login to Portfolio Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <style>
         body {
-            font-family: Arial;
-            background: #f4f6f8;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
         }
-        form {
+        .login-container {
             background: white;
-            padding: 30px;
-            width: 300px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,.1);
-        }
-        input, button {
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
             width: 100%;
-            padding: 10px;
-            margin-top: 10px;
+            max-width: 400px;
+            text-align: center;
         }
-        button {
-            background: #007bff;
+        .login-logo {
+            font-size: 2.5rem;
+            color: var(--primary, #4361ee);
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary, #4361ee);
             color: white;
             border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
             cursor: pointer;
+            margin-top: 10px;
+        }
+        .btn-primary:hover {
+            background: #3651d4;
+        }
+        .errorlist {
+            color: red;
+            list-style: none;
+            padding: 0;
+            margin: 5px 0 0 0;
+            font-size: 0.9rem;
+        }
+        .login-footer {
+            margin-top: 20px;
+            color: #666;
+            font-size: 0.9rem;
         }
     </style>
 </head>
 <body>
+    <div class="login-container">
+        <div class="login-logo">
+            <i class="fas fa-laptop-code"></i>
+        </div>
+        <h2>Welcome Back</h2>
+        <p style="color: #666; margin-bottom: 30px;">Sign in to your portfolio dashboard</p>
 
-<form method="post">
-    {% csrf_token %}
-    <h2>Portfolio Admin Login</h2>
+        {% if form.errors %}
+            <div style="color: red; margin-bottom: 15px;">
+                Invalid username or password.
+            </div>
+        {% endif %}
 
-    {{ form.username }}
-    {{ form.password }}
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_username">Username</label>
+                {{ form.username }}
+                {{ form.username.errors }}
+            </div>
+            <div class="form-group">
+                <label for="id_password">Password</label>
+                {{ form.password }}
+                {{ form.password.errors }}
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </button>
+        </form>
 
-    <button type="submit">Login</button>
-</form>
-
+        <div class="login-footer">
+            Don't have an account? Run:<br>
+            <code>python manage.py custom_createsuperuser</code>
+        </div>
+    </div>
 </body>
 </html>

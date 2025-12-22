@@ -1,5 +1,6 @@
 {% extends 'dashboard/base.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block section %}
 <div class="dashboard-section active" id="dashboardSection">
@@ -9,9 +10,15 @@
             <div class="card-content">
                 <div class="card-info">
                     <h3>Total Blog Posts</h3>
-                    <div class="card-value">24</div>
-                    <div class="card-change positive">
-                        <i class="fas fa-arrow-up"></i> 12% from last month
+                    <div class="card-value">{{ total_blog_posts }}</div>
+                    <div class="card-change {% if blog_posts_change >= 0 %}positive{% else %}negative{% endif %}">
+                        <i class="fas fa-arrow-{% if blog_posts_change >= 0 %}up{% else %}down{% endif %}"></i>
+                        {% if blog_posts_change >= 0 %}
+                            {{ blog_posts_change|floatformat:1 }}%
+                        {% else %}
+                            {{ blog_posts_change|floatformat:1|slice:"1:" }}%
+                        {% endif %}
+                        from last month
                     </div>
                 </div>
                 <div class="card-icon blog">
@@ -24,9 +31,15 @@
             <div class="card-content">
                 <div class="card-info">
                     <h3>Total Projects</h3>
-                    <div class="card-value">16</div>
-                    <div class="card-change positive">
-                        <i class="fas fa-arrow-up"></i> 8% from last month
+                    <div class="card-value">{{ total_projects }}</div>
+                    <div class="card-change {% if projects_change >= 0 %}positive{% else %}negative{% endif %}">
+                        <i class="fas fa-arrow-{% if projects_change >= 0 %}up{% else %}down{% endif %}"></i>
+                        {% if projects_change >= 0 %}
+                            {{ projects_change|floatformat:1 }}%
+                        {% else %}
+                            {{ projects_change|floatformat:1|slice:"1:" }}%
+                        {% endif %}
+                        from last month
                     </div>
                 </div>
                 <div class="card-icon project">
@@ -39,9 +52,15 @@
             <div class="card-content">
                 <div class="card-info">
                     <h3>Total Views</h3>
-                    <div class="card-value">5,842</div>
-                    <div class="card-change positive">
-                        <i class="fas fa-arrow-up"></i> 24% from last month
+                    <div class="card-value">{{ total_views|intcomma }}</div>
+                    <div class="card-change {% if views_change >= 0 %}positive{% else %}negative{% endif %}">
+                        <i class="fas fa-arrow-{% if views_change >= 0 %}up{% else %}down{% endif %}"></i>
+                        {% if views_change >= 0 %}
+                            {{ views_change|floatformat:1 }}%
+                        {% else %}
+                            {{ views_change|floatformat:1|slice:"1:" }}%
+                        {% endif %}
+                        from last month
                     </div>
                 </div>
                 <div class="card-icon view">
@@ -54,10 +73,20 @@
             <div class="card-content">
                 <div class="card-info">
                     <h3>Engagement Rate</h3>
-                    <div class="card-value">4.8%</div>
-                    <div class="card-change negative">
-                        <i class="fas fa-arrow-down"></i> 2% from last month
+                    <div class="card-value">{{ engagement_rate|floatformat:1 }}%</div>
+                    {% if engagement_change > 0 %}
+                    <div class="card-change positive">
+                        <i class="fas fa-arrow-up"></i> {{ engagement_change|floatformat:1 }}% from last month
                     </div>
+                    {% elif engagement_change < 0 %}
+                    <div class="card-change negative">
+                        <i class="fas fa-arrow-down"></i> {{ engagement_change|floatformat:1|slice:"1:" }}% from last month
+                    </div>
+                    {% else %}
+                    <div class="card-change" style="color: var(--gray);">
+                        <i class="fas fa-equals"></i> No change from last month
+                    </div>
+                    {% endif %}
                 </div>
                 <div class="card-icon engagement">
                     <i class="fas fa-comments"></i>
@@ -101,40 +130,26 @@
                 </div>
                 <div class="insight-title">
                     <h3>Top Performing Posts</h3>
-                    <p>Based on views and engagement</p>
+                    <p>Based on views</p>
                 </div>
             </div>
             <div class="insight-content">
+                {% for post in top_posts %}
                 <div class="insight-item">
                     <div>
-                        <strong>Building Interactive Dashboards</strong>
-                        <div style="font-size: 0.85rem; color: var(--gray); margin-top: 3px;">Tutorial</div>
+                        <strong>{{ post.title }}</strong>
+                        <div style="font-size: 0.85rem; color: var(--gray); margin-top: 3px;">{{ post.get_category_display|default:"Uncategorized" }}</div>
                     </div>
                     <div>
-                        <strong>1,245</strong>
+                        <strong>{{ post.views|intcomma }}</strong>
                         <div style="font-size: 0.85rem; color: var(--gray);">views</div>
                     </div>
                 </div>
-                <div class="insight-item">
-                    <div>
-                        <strong>Impact of Inflation Analysis</strong>
-                        <div style="font-size: 0.85rem; color: var(--gray); margin-top: 3px;">Analysis</div>
-                    </div>
-                    <div>
-                        <strong>982</strong>
-                        <div style="font-size: 0.85rem; color: var(--gray);">views</div>
-                    </div>
+                {% empty %}
+                <div class="insight-item" style="color: var(--gray); text-align: center; padding: 20px;">
+                    No posts yet
                 </div>
-                <div class="insight-item">
-                    <div>
-                        <strong>Data Visualization Tools 2023</strong>
-                        <div style="font-size: 0.85rem; color: var(--gray); margin-top: 3px;">Tools</div>
-                    </div>
-                    <div>
-                        <strong>756</strong>
-                        <div style="font-size: 0.85rem; color: var(--gray);">views</div>
-                    </div>
-                </div>
+                {% endfor %}
             </div>
         </div>
         
@@ -149,44 +164,91 @@
                 </div>
             </div>
             <div class="insight-content">
+                {% for tag in popular_tags %}
                 <div class="insight-item">
                     <div>
-                        <strong>Python</strong>
+                        <strong>{{ tag.name }}</strong>
                     </div>
                     <div>
-                        <strong>12</strong>
+                        <strong>{{ tag.count }}</strong>
                         <div style="font-size: 0.85rem; color: var(--gray);">uses</div>
                     </div>
                 </div>
-                <div class="insight-item">
-                    <div>
-                        <strong>Data Visualization</strong>
-                    </div>
-                    <div>
-                        <strong>9</strong>
-                        <div style="font-size: 0.85rem; color: var(--gray);">uses</div>
-                    </div>
+                {% empty %}
+                <div class="insight-item" style="color: var(--gray); text-align: center; padding: 20px;">
+                    No tags yet
                 </div>
-                <div class="insight-item">
-                    <div>
-                        <strong>Machine Learning</strong>
-                    </div>
-                    <div>
-                        <strong>7</strong>
-                        <div style="font-size: 0.85rem; color: var(--gray);">uses</div>
-                    </div>
-                </div>
-                <div class="insight-item">
-                    <div>
-                        <strong>Tutorial</strong>
-                    </div>
-                    <div>
-                        <strong>6</strong>
-                        <div style="font-size: 0.85rem; color: var(--gray);">uses</div>
-                    </div>
-                </div>
+                {% endfor %}
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// 100% REAL DATA from Django view
+const performanceData = {{ blog_performance_data|safe }};
+const distributionData = {{ content_distribution_data|safe }};
+
+// Blog Performance Chart (Line)
+const perfCtx = document.getElementById('blogPerformanceChart').getContext('2d');
+const performanceChart = new Chart(perfCtx, {
+    type: 'line',
+    data: {
+        labels: performanceData.week.labels,
+        datasets: [{
+            label: 'Views',
+            data: performanceData.week.data,
+            borderColor: 'rgb(75, 192, 192)',
+            backgroundColor: 'rgba(75, 192, 192, 0.1)',
+            tension: 0.3,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: { beginAtZero: true }
+        }
+    }
+});
+
+// Period switching - REAL data update
+document.querySelectorAll('.chart-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.chart-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        const period = btn.dataset.period;
+        const data = performanceData[period];
+        
+        performanceChart.data.labels = data.labels;
+        performanceChart.data.datasets[0].data = data.data;
+        performanceChart.update();
+    });
+});
+
+// Content Distribution Chart (Doughnut) - REAL category counts
+const distCtx = document.getElementById('contentDistributionChart').getContext('2d');
+new Chart(distCtx, {
+    type: 'doughnut',
+    data: {
+        labels: distributionData.labels,
+        datasets: [{
+            data: distributionData.values,
+            backgroundColor: [
+                '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { position: 'right' }
+        }
+    }
+});
+</script>
 {% endblock %}

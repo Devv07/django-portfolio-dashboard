@@ -3,10 +3,10 @@ const sidebar = document.getElementById('sidebar');
 const mobileToggle = document.getElementById('mobileToggle');
 const tabButtons = document.querySelectorAll('.tab-btn');
 const uploadForms = document.querySelectorAll('.upload-form');
-const chartPeriodButtons = document.querySelectorAll('.chart-btn');
 
 // Mobile Toggle Sidebar
-mobileToggle.addEventListener('click', () => {
+mobileToggle.addEventListener('click', (e) => {
+    e.stopPropagation();
     sidebar.classList.toggle('active');
 });
 
@@ -32,9 +32,7 @@ tabButtons.forEach(button => {
         const formId = button.getAttribute('data-form');
         
         // Hide all forms
-        uploadForms.forEach(form => {
-            form.classList.remove('active');
-        });
+        uploadForms.forEach(form => form.classList.remove('active'));
         
         // Show selected form
         document.getElementById(formId).classList.add('active');
@@ -42,303 +40,148 @@ tabButtons.forEach(button => {
 });
 
 // File upload click handlers
-const blogImageUpload = document.getElementById('blogImageUpload');
-if (blogImageUpload) {
-    blogImageUpload.addEventListener('click', () => {
-        document.getElementById('blogImage').click();
-    });
-}
+document.querySelectorAll('.file-upload').forEach(container => {
+    const input = container.querySelector('input[type="file"]');
+    if (input) {
+        container.addEventListener('click', (e) => {
+            // Prevent click if on remove button or tag
+            if (!e.target.closest('.tag-remove')) {
+                input.click();
+            }
+        });
+        
+        input.addEventListener('change', () => {
+            if (input.files.length > 0) {
+                container.querySelector('p').textContent = input.files[0].name;
+            } else {
+                container.querySelector('p').textContent = 'Click to upload or drag and drop';
+            }
+        });
+    }
+});
 
-const projectImageUpload = document.getElementById('projectImageUpload');
-if (projectImageUpload) {
-    projectImageUpload.addEventListener('click', () => {
-        document.getElementById('projectImage').click();
-    });
-}
-
-// Handle tag input for blog
-const blogTagsInput = document.getElementById('blogTags');
-const blogTagsContainer = document.getElementById('blogTagsContainer');
-if (blogTagsInput && blogTagsContainer) {
-    blogTagsInput.addEventListener('keydown', (e) => {
+// Generic tag input handler
+function setupTagInput(inputId, containerId) {
+    const input = document.getElementById(inputId);
+    const container = document.getElementById(containerId);
+    
+    if (!input || !container) return;
+    
+    input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ',') {
             e.preventDefault();
-            const tag = blogTagsInput.value.trim();
-            if (tag) {
-                addTag(tag, blogTagsContainer);
-                blogTagsInput.value = '';
+            const value = input.value.trim();
+            if (value) {
+                addTag(value, container, input);
             }
         }
     });
-    // Initialize with some tags
-    addTag('Python', blogTagsContainer);
-    addTag('Data Visualization', blogTagsContainer);
-    addTag('Tutorial', blogTagsContainer);
-}
-
-// Handle tools input for projects
-const projectToolsInput = document.getElementById('projectTools');
-const projectToolsContainer = document.getElementById('projectToolsContainer');
-if (projectToolsInput && projectToolsContainer) {
-    projectToolsInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ',') {
-            e.preventDefault();
-            const tool = projectToolsInput.value.trim();
-            if (tool) {
-                addTag(tool, projectToolsContainer);
-                projectToolsInput.value = '';
-            }
+    
+    input.addEventListener('blur', () => {
+        const value = input.value.trim();
+        if (value) {
+            addTag(value, container, input);
         }
     });
-    // Initialize with some tags
-    addTag('Power BI', projectToolsContainer);
-    addTag('SQL', projectToolsContainer);
-    addTag('DAX', projectToolsContainer);
 }
 
 // Function to add a tag
-function addTag(text, container) {
+function addTag(text, container, input) {
+    // Avoid duplicates
+    const existing = Array.from(container.querySelectorAll('.tag-text')).some(el => el.textContent.trim() === text);
+    if (existing) {
+        input.value = '';
+        return;
+    }
+    
     const tag = document.createElement('div');
     tag.className = 'tag';
     tag.innerHTML = `
-        ${text}
-        <button class="tag-remove">
+        <span class="tag-text">${text}</span>
+        <button type="button" class="tag-remove" aria-label="Remove tag">
             <i class="fas fa-times"></i>
         </button>
     `;
     
-    // Add remove functionality
-    const removeBtn = tag.querySelector('.tag-remove');
-    removeBtn.addEventListener('click', () => {
+    tag.querySelector('.tag-remove').addEventListener('click', () => {
         tag.remove();
+        updateHiddenInput(container, input);
     });
     
     container.appendChild(tag);
+    input.value = '';
+    updateHiddenInput(container, input);
 }
 
-// Form submission handlers
-const blogForm = document.getElementById('blogForm');
-if (blogForm) {
-    blogForm.addEventListener('submit', (e) => {
+// Update hidden input with comma-separated tags (for form submission)
+function updateHiddenInput(container, originalInput) {
+    const tags = Array.from(container.querySelectorAll('.tag-text')).map(el => el.textContent.trim()).join(',');
+    originalInput.value = tags;  // Assuming originalInput has name for submission
+}
+
+// Setup for blog tags
+setupTagInput('blogTags', 'blogTagsContainer');
+
+// Setup for project tools
+setupTagInput('projectTools', 'projectToolsContainer');
+
+// No form submission alerts - let Django handle it (remove preventDefault)
+// Remove the alert-based submission handlers - forms submit normally to server
+
+// Chart Period Toggle (if charts exist)
+const chartPeriodButtons = document.querySelectorAll('.chart-btn');
+if (chartPeriodButtons.length > 0) {
+    chartPeriodButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            chartPeriodButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            // Real apps would fetch new data here via AJAX
+            console.log('Switch to period:', this.dataset.period);
+        });
+    });
+}
+
+// Table action buttons (placeholder alerts)
+document.querySelectorAll('.action-btn.edit').forEach(btn => {
+    btn.addEventListener('click', (e) => {
         e.preventDefault();
-        alert('Blog post published successfully!');
-        // In a real app, submit via AJAX or form action
-    });
-}
-
-const projectForm = document.getElementById('projectForm');
-if (projectForm) {
-    projectForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        alert('Project published successfully!');
-        // In a real app, submit via AJAX or form action
-    });
-}
-
-const saveDraftBtn = document.getElementById('saveDraftBtn');
-if (saveDraftBtn) {
-    saveDraftBtn.addEventListener('click', () => {
-        alert('Blog post saved as draft!');
-    });
-}
-
-// Chart Period Toggle
-chartPeriodButtons.forEach(button => {
-    button.addEventListener('click', function() {
-        chartPeriodButtons.forEach(btn => btn.classList.remove('active'));
-        this.classList.add('active');
-        updateCharts(this.getAttribute('data-period'));
+        alert('Edit functionality coming soon!');
     });
 });
 
-// Initialize Charts
-let blogPerformanceChart, contentDistributionChart, engagementChart, categoriesChart;
-
-function initializeCharts() {
-    // Blog Performance Chart
-    const blogCtx = document.getElementById('blogPerformanceChart');
-    if (blogCtx) {
-        blogPerformanceChart = new Chart(blogCtx.getContext('2d'), {
-            type: 'line',
-            data: {
-                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                datasets: [{
-                    label: 'Views',
-                    data: [320, 450, 620, 580, 490, 720, 680],
-                    borderColor: '#4361ee',
-                    backgroundColor: 'rgba(67, 97, 238, 0.1)',
-                    borderWidth: 3,
-                    fill: true,
-                    tension: 0.4
-                }, {
-                    label: 'Likes',
-                    data: [45, 62, 78, 65, 52, 85, 72],
-                    borderColor: '#f72585',
-                    backgroundColor: 'rgba(247, 37, 133, 0.1)',
-                    borderWidth: 3,
-                    fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            drawBorder: false
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        }
-                    }
-                }
-            }
-        });
-    }
-    
-    // Content Distribution Chart
-    const contentCtx = document.getElementById('contentDistributionChart');
-    if (contentCtx) {
-        contentDistributionChart = new Chart(contentCtx.getContext('2d'), {
-            type: 'doughnut',
-            data: {
-                labels: ['Tutorials', 'Analysis', 'Tools', 'Case Studies', 'Trends'],
-                datasets: [{
-                    data: [35, 25, 20, 12, 8],
-                    backgroundColor: [
-                        '#4361ee',
-                        '#f72585',
-                        '#4cc9f0',
-                        '#06d6a0',
-                        '#ffd166'
-                    ],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'right',
-                    }
-                }
-            }
-        });
-    }
-    
-    // Engagement Chart
-    const engagementCtx = document.getElementById('engagementChart');
-    if (engagementCtx) {
-        engagementChart = new Chart(engagementCtx.getContext('2d'), {
-            type: 'bar',
-            data: {
-                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                datasets: [{
-                    label: 'Comments',
-                    data: [12, 19, 8, 15, 10, 5, 14],
-                    backgroundColor: '#4361ee',
-                    borderRadius: 8
-                }, {
-                    label: 'Shares',
-                    data: [8, 12, 5, 9, 7, 3, 10],
-                    backgroundColor: '#f72585',
-                    borderRadius: 8
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            drawBorder: false
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        }
-                    }
-                }
-            }
-        });
-    }
-    
-    // Categories Chart
-    const categoriesCtx = document.getElementById('categoriesChart');
-    if (categoriesCtx) {
-        categoriesChart = new Chart(categoriesCtx.getContext('2d'), {
-            type: 'polarArea',
-            data: {
-                labels: ['Tutorial', 'Analysis', 'Tools', 'Case Study'],
-                datasets: [{
-                    data: [1245, 982, 756, 543],
-                    backgroundColor: [
-                        'rgba(67, 97, 238, 0.7)',
-                        'rgba(247, 37, 133, 0.7)',
-                        'rgba(76, 201, 240, 0.7)',
-                        'rgba(6, 214, 160, 0.7)'
-                    ],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'right',
-                    }
-                }
-            }
-        });
-    }
-}
-
-// Update charts based on period
-function updateCharts(period) {
-    // This would normally fetch new data from server based on period
-    // For demo, we'll just log
-    console.log(`Updating charts for period: ${period}`);
-}
-
-// Initialize when page loads
-document.addEventListener('DOMContentLoaded', initializeCharts);
-
-// Handle table action buttons
-document.querySelectorAll('.action-btn.edit').forEach(button => {
-    button.addEventListener('click', function() {
-        alert('Edit functionality would open an edit form here.');
-    });
-});
-
-document.querySelectorAll('.action-btn.delete').forEach(button => {
-    button.addEventListener('click', function() {
+document.querySelectorAll('.action-btn.delete').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        e.preventDefault();
         if (confirm('Are you sure you want to delete this item?')) {
-            // In real app, would delete from server
-            alert('Item deleted successfully!');
+            alert('Delete functionality coming soon!');
         }
     });
 });
 
-document.querySelectorAll('.action-btn.view').forEach(button => {
-    button.addEventListener('click', function() {
-        alert('View functionality would open the item in a new tab.');
+document.querySelectorAll('.action-btn.view').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        alert('View in new tab coming soon!');
     });
 });
+
+// Notification Dropdown (if elements exist)
+const notificationBtn = document.getElementById('notificationBtn');
+const notificationDropdown = document.getElementById('notificationDropdown');
+if (notificationBtn && notificationDropdown) {
+    notificationBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        notificationDropdown.classList.toggle('active');
+    });
+
+    document.addEventListener('click', () => {
+        notificationDropdown.classList.remove('active');
+    });
+
+    const markAllRead = document.getElementById('markAllRead');
+    if (markAllRead) {
+        markAllRead.addEventListener('click', () => {
+            alert('Mark all as read coming soon!');
+        });
+    }
+}
