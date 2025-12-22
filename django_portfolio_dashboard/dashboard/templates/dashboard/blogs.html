@@ -1,0 +1,149 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block section %}
+<div class="dashboard-section" id="blogSection">
+    <div class="content-table-container">
+        <div class="table-header">
+            <h2>Manage Blog Posts</h2>
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search blog posts...">
+            </div>
+        </div>
+        
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Blog Post</th>
+                        <th>Category</th>
+                        <th>Views</th>
+                        <th>Likes</th>
+                        <th>Comments</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <strong>Building Interactive Dashboards with Python</strong>
+                            <div style="font-size: 0.85rem; color: var(--gray);">Learn how to create interactive business dashboards</div>
+                        </td>
+                        <td>Tutorial</td>
+                        <td>1,245</td>
+                        <td>124</td>
+                        <td>28</td>
+                        <td><span class="status published">Published</span></td>
+                        <td>May 15, 2023</td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="action-btn edit" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="action-btn delete" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                <button class="action-btn view" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>The Impact of Inflation on Retail Sales</strong>
+                            <div style="font-size: 0.85rem; color: var(--gray);">Analyzing consumer spending patterns</div>
+                        </td>
+                        <td>Analysis</td>
+                        <td>982</td>
+                        <td>89</td>
+                        <td>15</td>
+                        <td><span class="status published">Published</span></td>
+                        <td>April 28, 2023</td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="action-btn edit" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="action-btn delete" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                <button class="action-btn view" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>Comparing Data Visualization Tools: 2023 Edition</strong>
+                            <div style="font-size: 0.85rem; color: var(--gray);">Tableau vs Power BI vs Looker comparison</div>
+                        </td>
+                        <td>Tools</td>
+                        <td>756</td>
+                        <td>67</td>
+                        <td>12</td>
+                        <td><span class="status published">Published</span></td>
+                        <td>March 10, 2023</td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="action-btn edit" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="action-btn delete" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                <button class="action-btn view" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>Machine Learning for Business Forecasting</strong>
+                            <div style="font-size: 0.85rem; color: var(--gray);">Using ML models to predict business trends</div>
+                        </td>
+                        <td>Tutorial</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td><span class="status draft">Draft</span></td>
+                        <td>June 10, 2023</td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="action-btn edit" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="action-btn delete" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                <button class="action-btn view" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; margin-top: 25px;">
+            <div>
+                Showing 4 of 24 blog posts
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-secondary">
+                    <i class="fas fa-chevron-left"></i> Previous
+                </button>
+                <button class="btn btn-primary">
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

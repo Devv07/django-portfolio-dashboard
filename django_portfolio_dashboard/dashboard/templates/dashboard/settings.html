@@ -1,0 +1,62 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block section %}
+<div class="dashboard-section" id="settingsSection">
+    <div class="upload-section">
+        <div class="section-title">
+            <h2>Portfolio Settings</h2>
+        </div>
+        
+        <div style="max-width: 600px;">
+            <div class="form-group">
+                <label for="portfolioTitle">Portfolio Title</label>
+                <input type="text" id="portfolioTitle" class="form-control" value="DataSphere | Data Analysis Portfolio">
+            </div>
+            
+            <div class="form-group">
+                <label for="portfolioDescription">Portfolio Description</label>
+                <textarea id="portfolioDescription" class="form-control" rows="4">Transforming raw data into actionable insights. Explore my projects, analyses, and data-driven blog posts.</textarea>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="portfolioEmail">Contact Email</label>
+                    <input type="email" id="portfolioEmail" class="form-control" value="alex.johnson@datasphere.com">
+                </div>
+                <div class="form-group">
+                    <label for="portfolioPhone">Contact Phone</label>
+                    <input type="text" id="portfolioPhone" class="form-control" value="+1 (555) 123-4567">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="socialLinks">Social Links</label>
+                <input type="text" id="githubLink" class="form-control" placeholder="GitHub URL" style="margin-bottom: 10px;" value="https://github.com/alexjohnson">
+                <input type="text" id="linkedinLink" class="form-control" placeholder="LinkedIn URL" style="margin-bottom: 10px;" value="https://linkedin.com/in/alexjohnson">
+                <input type="text" id="twitterLink" class="form-control" placeholder="Twitter URL" value="https://twitter.com/alexjohnson">
+            </div>
+            
+            <div class="form-group">
+                <label for="portfolioTheme">Theme Color</label>
+                <div style="display: flex; gap: 15px; margin-top: 10px;">
+                    <div style="width: 40px; height: 40px; border-radius: 8px; background: #4361ee; border: 3px solid #4361ee; cursor: pointer;"></div>
+                    <div style="width: 40px; height: 40px; border-radius: 8px; background: #3a0ca3; border: 3px solid #e0e4f5; cursor: pointer;"></div>
+                    <div style="width: 40px; height: 40px; border-radius: 8px; background: #f72585; border: 3px solid #e0e4f5; cursor: pointer;"></div>
+                    <div style="width: 40px; height: 40px; border-radius: 8px; background: #06d6a0; border: 3px solid #e0e4f5; cursor: pointer;"></div>
+                    <div style="width: 40px; height: 40px; border-radius: 8px; background: #1a1a2e; border: 3px solid #e0e4f5; cursor: pointer;"></div>
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 15px; margin-top: 30px;">
+                <button class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Settings
+                </button>
+                <button class="btn btn-secondary">
+                    <i class="fas fa-redo"></i> Reset to Default
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,118 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block section %}
+<div class="dashboard-section" id="analyticsSection">
+    <div class="upload-section">
+        <div class="section-title">
+            <h2>Blog Performance Analytics</h2>
+            <div class="chart-actions">
+                <button class="chart-btn active" data-period="week">Last 7 Days</button>
+                <button class="chart-btn" data-period="month">Last 30 Days</button>
+                <button class="chart-btn" data-period="quarter">Last 90 Days</button>
+            </div>
+        </div>
+        
+        <div class="charts-section" style="margin-top: 20px;">
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3>Engagement Metrics</h3>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="engagementChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3>Top Content Categories</h3>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="categoriesChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 30px;">
+            <h3 style="margin-bottom: 20px;">Blog Performance Insights</h3>
+            <div class="analytics-insights">
+                <div class="insight-card">
+                    <div class="insight-header">
+                        <div class="insight-icon peak-time">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="insight-title">
+                            <h3>Peak Engagement Time</h3>
+                            <p>Best time to publish content</p>
+                        </div>
+                    </div>
+                    <div class="insight-content">
+                        <div class="insight-item">
+                            <div>
+                                <strong>Best Day:</strong>
+                            </div>
+                            <div>
+                                <strong>Wednesday</strong>
+                            </div>
+                        </div>
+                        <div class="insight-item">
+                            <div>
+                                <strong>Best Time:</strong>
+                            </div>
+                            <div>
+                                <strong>10:00 AM - 12:00 PM</strong>
+                            </div>
+                        </div>
+                        <div class="insight-item">
+                            <div>
+                                <strong>Avg. Engagement:</strong>
+                            </div>
+                            <div>
+                                <strong>+42%</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="insight-card">
+                    <div class="insight-header">
+                        <div class="insight-icon top-post">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="insight-title">
+                            <h3>Audience Insights</h3>
+                            <p>Reader demographics & behavior</p>
+                        </div>
+                    </div>
+                    <div class="insight-content">
+                        <div class="insight-item">
+                            <div>
+                                <strong>Avg. Time on Page:</strong>
+                            </div>
+                            <div>
+                                <strong>4.2 min</strong>
+                            </div>
+                        </div>
+                        <div class="insight-item">
+                            <div>
+                                <strong>Bounce Rate:</strong>
+                            </div>
+                            <div>
+                                <strong>32%</strong>
+                            </div>
+                        </div>
+                        <div class="insight-item">
+                            <div>
+                                <strong>Returning Visitors:</strong>
+                            </div>
+                            <div>
+                                <strong>28%</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

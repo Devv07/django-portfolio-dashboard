@@ -1,0 +1,140 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block section %}
+<div class="dashboard-section" id="uploadSection">
+    <div class="upload-section">
+        <div class="section-title">
+            <h2>Upload New Content</h2>
+        </div>
+        
+        <div class="upload-tabs">
+            <button class="tab-btn active" data-form="blogForm">Blog Post</button>
+            <button class="tab-btn" data-form="projectForm">Project</button>
+        </div>
+        
+        <!-- Blog Upload Form -->
+        <form id="blogForm" class="upload-form active">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="blogTitle">Blog Title</label>
+                    <input type="text" id="blogTitle" class="form-control" placeholder="Enter blog title">
+                </div>
+                <div class="form-group">
+                    <label for="blogCategory">Category</label>
+                    <select id="blogCategory" class="form-control">
+                        <option value="">Select Category</option>
+                        <option value="tutorial">Tutorial</option>
+                        <option value="analysis">Analysis</option>
+                        <option value="tools">Tools</option>
+                        <option value="case-study">Case Study</option>
+                        <option value="trends">Trends</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="blogContent">Blog Content</label>
+                <textarea id="blogContent" class="form-control" placeholder="Write your blog content here..."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="blogTags">Tags</label>
+                <input type="text" id="blogTags" class="form-control" placeholder="Add tags separated by commas">
+                <div class="tag-input" id="blogTagsContainer">
+                    <!-- Tags will be added here dynamically -->
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="blogImage">Featured Image</label>
+                    <div class="file-upload" id="blogImageUpload">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Click to upload or drag and drop</p>
+                        <span>PNG, JPG, GIF up to 5MB</span>
+                        <input type="file" id="blogImage" accept="image/*" style="display: none;">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="blogStatus">Status</label>
+                    <select id="blogStatus" class="form-control">
+                        <option value="draft">Save as Draft</option>
+                        <option value="published">Publish Immediately</option>
+                        <option value="scheduled">Schedule for Later</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 15px; margin-top: 30px;">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-paper-plane"></i> Publish Blog
+                </button>
+                <button type="button" class="btn btn-secondary" id="saveDraftBtn">
+                    <i class="fas fa-save"></i> Save as Draft
+                </button>
+            </div>
+        </form>
+        
+        <!-- Project Upload Form -->
+        <form id="projectForm" class="upload-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="projectTitle">Project Title</label>
+                    <input type="text" id="projectTitle" class="form-control" placeholder="Enter project title">
+                </div>
+                <div class="form-group">
+                    <label for="projectType">Project Type</label>
+                    <select id="projectType" class="form-control">
+                        <option value="">Select Type</option>
+                        <option value="dashboard">Dashboard</option>
+                        <option value="analysis">Data Analysis</option>
+                        <option value="visualization">Data Visualization</option>
+                        <option value="machine-learning">Machine Learning</option>
+                        <option value="business-intelligence">Business Intelligence</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="projectDescription">Project Description</label>
+                <textarea id="projectDescription" class="form-control" placeholder="Describe your project..."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="projectTools">Tools & Technologies</label>
+                <input type="text" id="projectTools" class="form-control" placeholder="Add tools separated by commas">
+                <div class="tag-input" id="projectToolsContainer">
+                    <!-- Tools will be added here dynamically -->
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="projectImage">Project Image</label>
+                    <div class="file-upload" id="projectImageUpload">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Click to upload or drag and drop</p>
+                        <span>PNG, JPG, GIF up to 5MB</span>
+                        <input type="file" id="projectImage" accept="image/*" style="display: none;">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="projectLinks">Project Links</label>
+                    <input type="text" id="projectLiveLink" class="form-control" placeholder="Live demo link" style="margin-bottom: 10px;">
+                    <input type="text" id="projectCodeLink" class="form-control" placeholder="Source code link">
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 15px; margin-top: 30px;">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-rocket"></i> Publish Project
+                </button>
+                <button type="button" class="btn btn-secondary">
+                    <i class="fas fa-save"></i> Save as Draft
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
