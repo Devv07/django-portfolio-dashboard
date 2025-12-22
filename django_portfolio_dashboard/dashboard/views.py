@@ -12,6 +12,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from .forms import BlogPostForm, ProjectForm, PortfolioSettingsForm
 from .models import BlogPost, Project, PortfolioSettings
 from collections import defaultdict, OrderedDict
+from django.db.models.functions import TruncDate
 
 
 @login_required
@@ -93,24 +94,27 @@ def dashboard(request):
     def get_performance_data(days):
         end = timezone.now()
         start = end - timedelta(days=days)
+
         dates = OrderedDict()
         current = start.date()
         while current <= end.date():
             key = current.strftime('%b %d' if days <= 31 else '%b %Y')
             dates[key] = 0
             current += timedelta(days=1)
-        
-        # Aggregate views by date
-        view_data = BlogPost.objects.filter(created_at__gte=start)\
-            .extra(select={'day': "DATE(created_at)"})\
-            .values('day')\
+
+        view_data = (
+            BlogPost.objects
+            .filter(created_at__gte=start)
+            .annotate(day=TruncDate('created_at'))   # ✅ returns DATE object
+            .values('day')
             .annotate(views=Sum('views'))
-        
+        )
+
         for item in view_data:
-            day_str = item['day'].strftime('%b %d' if days <= 31 else '%b %Y')
-            if day_str in dates:
-                dates[day_str] = item['views']
-        
+            day_obj = item['day']                    # ✅ this is DATE
+            day_str = day_obj.strftime('%b %d' if days <= 31 else '%b %Y')
+            dates[day_str] = item['views']
+
         return {
             'labels': list(dates.keys()),
             'data': list(dates.values())

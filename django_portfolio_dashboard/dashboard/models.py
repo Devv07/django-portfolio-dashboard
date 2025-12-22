@@ -3,7 +3,6 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-
 class BlogPost(models.Model):
     title = models.CharField(max_length=200)
     content = models.TextField()
@@ -59,7 +58,7 @@ class Project(models.Model):
     # dashboard/models.py
 class PortfolioSettings(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    
+    profile_picture = models.ImageField(upload_to='profiles/', blank=True, null=True)
     portfolio_title = models.CharField(max_length=100, default="My Data Portfolio")
     portfolio_description = models.TextField(max_length=500, default="Welcome to my data analysis portfolio.")
     
@@ -95,3 +94,4 @@ class Notification(models.Model):
 
     def __str__(self):
         return self.message
+    

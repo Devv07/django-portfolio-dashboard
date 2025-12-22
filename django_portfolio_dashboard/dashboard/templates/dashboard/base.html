@@ -73,7 +73,18 @@
                 <li>
                     <form method="post" action="{% url 'logout' %}">
                         {% csrf_token %}
-                        <button type="submit" style="border:none; background:none; cursor:pointer; display:flex; align-items:center; gap:12px; width:100%; padding:10px 15px; color: #dfdada;">
+                        <button type="submit" style="
+                            border:none;
+                            background:none;
+                            cursor:pointer; display:flex; 
+                            align-items:center; 
+                            gap:12px; width:100%; 
+                            padding:10px 15px; 
+                            color: #cfd1d5;
+                            border-radius: 10px;
+                            " 
+                            onmouseover="this.style.backgroundColor='rgba(67, 97, 238)';"
+                            onmouseout="this.style.backgroundColor='transparent';">
                             <i class="fas fa-sign-out-alt"></i>
                             <span class="menu-text">Logout</span>
                         </button>
@@ -85,7 +96,11 @@
                 <div class="user-info">
                     <div class="user-avatar">
                         <!-- You can add profile picture upload later -->
-                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80" alt="User">
+                        {% if settings.profile_picture %}
+                            <img src="{{ settings.profile_picture.url }}" alt="User">
+                        {% else %}
+                            <img src="{% static 'images/default-avatar.png' %}" alt="User">
+                        {% endif %}
                     </div>
                     <div>
                         <div class="user-name">{{ request.user.get_full_name|default:request.user.username }}</div>
