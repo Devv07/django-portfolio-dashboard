@@ -9,8 +9,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.core.exceptions import ObjectDoesNotExist
 
-from .forms import BlogPostForm, ProjectForm, PortfolioSettingsForm
-from .models import BlogPost, Project, PortfolioSettings
+from .forms import BlogPostForm, ExperienceForm, ProjectForm, PortfolioSettingsForm
+from .models import BlogPost, Experience, Project, PortfolioSettings
 from collections import defaultdict, OrderedDict
 from django.db.models.functions import TruncDate
 
@@ -146,35 +146,39 @@ def dashboard(request):
 @login_required
 def upload_content(request, tab='blog'):
     settings, created = PortfolioSettings.objects.get_or_create(user=request.user)
-    
+
     blog_form = BlogPostForm()
     project_form = ProjectForm()
 
     if request.method == 'POST':
-        action = request.POST.get('action', 'publish')
+        action = request.POST.get('action')  # 'publish' or 'draft'
 
-        if tab == 'blog':
+        # Check which form was submitted by looking for form-specific fields
+        if 'title' in request.POST and 'content' in request.POST:  # Blog fields
             blog_form = BlogPostForm(request.POST, request.FILES)
             if blog_form.is_valid():
                 post = blog_form.save(commit=False)
                 post.author = request.user
                 post.status = 'published' if action == 'publish' else 'draft'
                 post.save()
-                messages.success(request, f'Blog post "{post.title}" successfully {"published" if action == "publish" else "saved as draft"}!')
+                messages.success(request, f'Blog post "{post.title}" { "published" if action == "publish" else "saved as draft" }!')
                 return redirect('dashboard:upload_content', tab='blog')
             else:
-                messages.error(request, "Please correct the errors below.")
-        
-        elif tab == 'project':
+                messages.error(request, "Please correct the errors in the blog form.")
+
+        elif 'title' in request.POST and 'description' in request.POST:  # Project fields
             project_form = ProjectForm(request.POST, request.FILES)
             if project_form.is_valid():
                 project = project_form.save(commit=False)
                 project.author = request.user
+                project.status = 'published' if action == 'publish' else 'draft'
                 project.save()
-                messages.success(request, f'Project "{project.title}" added successfully!')
+                messages.success(request, f'Project "{project.title}" { "published" if action == "publish" else "saved as draft" }!')
                 return redirect('dashboard:upload_content', tab='project')
             else:
-                messages.error(request, "Please correct the errors below.")
+                messages.error(request, "Please correct the errors in the project form.")
+
+        tab = 'project' if 'description' in request.POST else 'blog'  # Keep active tab
 
     context = {
         'settings': settings,
@@ -374,58 +378,85 @@ def blog_analytics(request):
 
 @login_required
 def portfolio_settings(request):
-    # At the top of each view function
     settings, created = PortfolioSettings.objects.get_or_create(user=request.user)
-    try:
-        settings = request.user.portfoliosettings
-    except ObjectDoesNotExist:
-        settings = PortfolioSettings.objects.create(user=request.user)
+    experiences = Experience.objects.filter(user=request.user).order_by('-start_date')
 
     if request.method == 'POST':
-        form = PortfolioSettingsForm(request.POST, instance=settings)
-        if form.is_valid():
-            form.save()
-            
-            action = request.POST.get('action')
-            if action == 'reset':
-                # Reset to defaults
-                settings.portfolio_title = "My Data Portfolio"
-                settings.portfolio_description = "Welcome to my data analysis portfolio."
-                settings.contact_email = ""
-                settings.contact_phone = ""
-                settings.github_link = ""
-                settings.linkedin_link = ""
-                settings.twitter_link = ""
-                settings.theme_color = "#4361ee"
-                settings.save()
-                messages.success(request, "Settings reset to default!")
+        action = request.POST.get('action')
+
+        # Save main settings
+        if action == 'save':
+            form = PortfolioSettingsForm(request.POST, request.FILES, instance=settings)
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Profile settings saved successfully!")
+                return redirect('dashboard:portfolio_settings')
             else:
-                messages.success(request, "Settings saved successfully!")
-            
+                messages.error(request, "Please fix the errors in the form.")
+
+        # Add new experience
+        elif action == 'add_experience':
+            exp_form = ExperienceForm(request.POST)
+            if exp_form.is_valid():
+                exp = exp_form.save(commit=False)
+                exp.user = request.user
+                exp.save()
+                messages.success(request, "Experience added successfully!")
+                return redirect('dashboard:portfolio_settings')
+            else:
+                messages.error(request, "Please fix errors in experience form.")
+
+        # Delete experience
+        elif action == 'delete_experience':
+            exp_id = request.POST.get('exp_id')
+            if exp_id:
+                exp = get_object_or_404(Experience, id=exp_id, user=request.user)
+                exp.delete()
+                messages.success(request, "Experience deleted.")
             return redirect('dashboard:portfolio_settings')
+
+        # Reset settings
+        elif action == 'reset':
+            settings.profile_picture = None
+            settings.first_name = ""
+            settings.last_name = ""
+            settings.portfolio_title = "My Portfolio"
+            settings.bio = ""
+            settings.skills = ""
+            settings.location = ""
+            settings.contact_email = ""
+            settings.contact_phone = ""
+            settings.github_link = ""
+            settings.linkedin_link = ""
+            settings.twitter_link = ""
+            settings.instagram_link = ""
+            settings.theme_color = "#4361ee"
+            settings.save()
+            messages.success(request, "Settings reset to default!")
+            return redirect('dashboard:portfolio_settings')
+
     else:
         form = PortfolioSettingsForm(instance=settings)
+        exp_form = ExperienceForm()
 
-    return render(request, 'dashboard/settings.html', {
+    context = {
         'form': form,
-    })
+        'exp_form': exp_form,
+        'settings': settings,
+        'experiences': experiences,
+        'active_menu': 'settings',
+    }
+    return render(request, 'dashboard/settings.html', context)
 
 
 @login_required
 def profile_view(request):
     settings, created = PortfolioSettings.objects.get_or_create(user=request.user)
-    
-    if request.method == 'POST':
-        form = PortfolioSettingsForm(request.POST, request.FILES, instance=settings)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Profile updated successfully!")
-            return redirect('profile_view')
-    else:
-        form = PortfolioSettingsForm(instance=settings)
-    
-    return render(request, 'dashboard/profile_view.html', {
-        'form': form,
+    experiences = Experience.objects.filter(user=request.user).order_by('-start_date')
+
+    context = {
         'settings': settings,
+        'experiences': experiences,
         'active_menu': 'profile',
-    })
+    }
+    return render(request, 'dashboard/profile_view.html', context)

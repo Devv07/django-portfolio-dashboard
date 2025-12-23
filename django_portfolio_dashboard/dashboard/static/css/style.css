@@ -15,6 +15,7 @@
     --transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1);
     --sidebar-width: 250px;
     --header-height: 70px;
+    --primary: {{ settings.theme_color|default:"#4361ee" }};
 }
 * {
     margin: 0;
@@ -748,4 +749,28 @@ td {
 .notif-icon i {
     font-size: 1.4rem;
     color: var(--primary);
+}
+
+.tags-container, .tools-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.tag, .tool-tag {
+    background: var(--primary);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 30px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.tag:hover, .tool-tag:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
 }

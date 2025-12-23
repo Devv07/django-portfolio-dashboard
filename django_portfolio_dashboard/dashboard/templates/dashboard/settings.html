@@ -3,109 +3,362 @@
 
 {% block section %}
 <div class="dashboard-section" id="settingsSection">
-    <div class="upload-section">
+    <div class="upload-section" style="max-width: 900px; margin: 0 auto;">
         <div class="section-title">
             <h2>Portfolio Settings</h2>
+            <p>Personalize your professional profile and resume</p>
         </div>
 
-        <!-- Success/Error Messages -->
         {% if messages %}
             {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} mb-4">
-                    {{ message }}
-                </div>
+                <div class="alert alert-{{ message.tags }} mb-4">{{ message }}</div>
             {% endfor %}
         {% endif %}
 
-        <form method="post" class="settings-form">
+        <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
 
-            <div style="max-width: 700px;">
+            <!-- Profile Picture -->
+            <div class="text-center mb-5">
+                <div class="user-avatar large" style="width: 160px; height: 160px; margin: 0 auto 25px; border: 4px solid var(--primary); border-radius: 50%; overflow: hidden;">
+                    {% if form.instance.profile_picture %}
+                        <img src="{{ form.instance.profile_picture.url }}" alt="Profile" style="width:100%; height:100%; object-fit:cover;">
+                    {% else %}
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Default" style="width:100%; height:100%; object-fit:cover;">
+                    {% endif %}
+                </div>
                 <div class="form-group">
-                    <label for="id_portfolio_title">Portfolio Title</label>
-                    {{ form.portfolio_title }}
-                    {{ form.portfolio_title.errors }}
-                </div>
-
-                <div class="form-group">
-                    <label for="id_portfolio_description">Portfolio Description</label>
-                    {{ form.portfolio_description }}
-                    {{ form.portfolio_description.errors }}
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="id_contact_email">Contact Email</label>
-                        {{ form.contact_email }}
-                        {{ form.contact_email.errors }}
-                    </div>
-                    <div class="form-group">
-                        <label for="id_contact_phone">Contact Phone</label>
-                        {{ form.contact_phone }}
-                        {{ form.contact_phone.errors }}
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Social Links</label>
-                    <div style="margin-bottom: 10px;">
-                        {{ form.github_link }}
-                        <small class="form-text">GitHub URL</small>
-                        {{ form.github_link.errors }}
-                    </div>
-                    <div style="margin-bottom: 10px;">
-                        {{ form.linkedin_link }}
-                        <small class="form-text">LinkedIn URL</small>
-                        {{ form.linkedin_link.errors }}
-                    </div>
-                    <div style="margin-bottom: 10px;">
-                        {{ form.twitter_link }}
-                        <small class="form-text">Twitter/X URL</small>
-                        {{ form.twitter_link.errors }}
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Theme Color</label>
-                    <div style="display: flex; gap: 15px; margin-top: 10px; flex-wrap: wrap;">
-                        {% for color in form.theme_color %}
-                            {{ color.tag }}
-                            <label for="{{ color.id_for_label }}" style="width: 50px; height: 50px; border-radius: 10px; background: {{ color.choice_label }}; border: 4px solid {% if color.data.selected %}#fff{% else %}transparent{% endif %}; box-shadow: 0 0 0 2px {{ color.choice_label }}; cursor: pointer; display: block;"></label>
-                        {% endfor %}
-                    </div>
-                    {{ form.theme_color.errors }}
-                </div>
-
-                <div style="display: flex; gap: 15px; margin-top: 40px;">
-                    <button type="submit" name="action" value="save" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Save Settings
-                    </button>
-                    <button type="submit" name="action" value="reset" class="btn btn-secondary">
-                        <i class="fas fa-redo"></i> Reset to Default
-                    </button>
+                    <label>Profile Picture (optional)</label>
+                    {{ form.profile_picture }}
+                    {{ form.profile_picture.errors }}
+                    <small>Square image recommended</small>
                 </div>
             </div>
+
+            <!-- Personal Info -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label>First Name (optional)</label>
+                    {{ form.first_name }}
+                    {{ form.first_name.errors }}
+                </div>
+                <div class="form-group">
+                    <label>Last Name (optional)</label>
+                    {{ form.last_name }}
+                    {{ form.last_name.errors }}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Location (optional)</label>
+                {{ form.location }}
+                {{ form.location.errors }}
+                <small>e.g. San Francisco, CA | Remote</small>
+            </div>
+
+            <div class="form-group">
+                <label>Portfolio Title (optional)</label>
+                {{ form.portfolio_title }}
+                {{ form.portfolio_title.errors }}
+            </div>
+
+            <div class="form-group">
+                <label>About Me (Bio) (optional)</label>
+                {{ form.bio }}
+                {{ form.bio.errors }}
+            </div>
+
+            <!-- Skills -->
+            <div class="form-group">
+                <label>Skills & Technologies (optional)</label>
+                {{ form.skills }}
+                <div class="tag-input" id="skillsContainer"></div>
+                {{ form.skills.errors }}
+                <small>Type and press Enter</small>
+            </div>
+
+            <!-- Contact -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Contact Email (optional)</label>
+                    {{ form.contact_email }}
+                    {{ form.contact_email.errors }}
+                </div>
+                <div class="form-group">
+                    <label>Phone (optional)</label>
+                    {{ form.contact_phone }}
+                    {{ form.contact_phone.errors }}
+                </div>
+            </div>
+
+            <!-- Social Links -->
+            <div class="form-group">
+                <label>Social Links (optional)</label>
+                <div class="mb-3">{{ form.github_link }} <small>GitHub</small></div>
+                <div class="mb-3">{{ form.linkedin_link }} <small>LinkedIn</small></div>
+                <div class="mb-3">{{ form.twitter_link }} <small>Twitter/X</small></div>
+                <div class="mb-3">{{ form.instagram_link }} <small>Instagram</small></div>
+            </div>
+
+            <!-- Theme Color -->
+            <div class="form-group">
+                <label>Theme Color</label>
+                <div style="display:flex; gap:20px; flex-wrap:wrap; margin-top:15px;">
+                    {% for radio in form.theme_color %}
+                        <div>
+                            {{ radio.tag }}
+                            <label for="{{ radio.id_for_label }}"
+                                   style="display:block; width:60px; height:60px; border-radius:15px; background:{{ radio.choice_label }};
+                                          border:5px solid {% if radio.checked %}#fff{% else %}transparent{% endif %};
+                                          box-shadow:0 0 0 3px {{ radio.choice_label }}; cursor:pointer; margin-top:10px;">
+                            </label>
+                        </div>
+                    {% endfor %}
+                </div>
+                {{ form.theme_color.errors }}
+            </div>
+
+            <!-- Save Button -->
+            <div style="text-align:center; margin:50px 0;">
+                <button type="submit" name="action" value="save" class="btn btn-primary btn-lg">
+                    <i class="fas fa-save"></i> Save All Changes
+                </button>
+                <button type="submit" name="action" value="reset" class="btn btn-secondary btn-lg">
+                    <i class="fas fa-redo"></i> Reset to Default
+                </button>
+            </div>
         </form>
+
+        <!-- Work Experience Section -->
+        <hr style="margin: 80px 0; border: none; border-top: 3px solid #eee;">
+
+        <div class="section-title">
+            <h2>Work Experience</h2>
+            <p>Add your professional journey (completely optional)</p>
+        </div>
+
+        <!-- Add New Experience -->
+        <div class="card mb-5" style="background: #f8fbff; border-left: 5px solid var(--primary);">
+            <div class="card-body">
+                <h4>Add New Experience</h4>
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="add_experience">
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Position (optional)</label>
+                            {{ exp_form.position }}
+                        </div>
+                        <div class="form-group">
+                            <label>Company (optional)</label>
+                            {{ exp_form.company }}
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Level (optional)</label>
+                            {{ exp_form.level }}
+                        </div>
+                        <div class="form-group">
+                            <label>Current Job?</label>
+                            <div class="form-check">
+                                {{ exp_form.current }}
+                                <label class="form-check-label">This is my current role</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Start Date (optional)</label>
+                            {{ exp_form.start_date }}
+                        </div>
+                        <div class="form-group">
+                            <label>End Date (optional)</label>
+                            {{ exp_form.end_date }}
+                            <small>Leave blank if current</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Description (optional)</label>
+                        {{ exp_form.description }}
+                    </div>
+
+                    <div style="margin-top: 20px;">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-plus"></i> Add Experience
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Existing Experiences -->
+        {% if experiences %}
+            <h4 style="margin-bottom: 30px;">Your Experience</h4>
+            {% for exp in experiences %}
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                            <div style="flex: 1;">
+                                <h5 style="margin: 0;">
+                                    {{ exp.position|default:"Position not specified" }}
+                                    {% if exp.level %}
+                                        <span class="tag" style="background: var(--primary); color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; margin-left: 10px;">
+                                            {{ exp.get_level_display }}
+                                        </span>
+                                    {% endif %}
+                                </h5>
+                                <p style="margin: 10px 0; font-weight: 600; color: var(--primary);">
+                                    {{ exp.company|default:"Company not specified" }}
+                                </p>
+                                <p style="color: #666; margin: 8px 0;">
+                                    {{ exp.start_date|date:"M Y"|default:"Date not specified" }} – 
+                                    {% if exp.current %}
+                                        Present
+                                    {% else %}
+                                        {{ exp.end_date|date:"M Y"|default:"Present" }}
+                                    {% endif %}
+                                </p>
+                                {% if exp.description %}
+                                    <p style="margin-top: 15px; line-height: 1.7;">{{ exp.description|linebreaks }}</p>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <form method="post" style="display:inline;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="delete_experience">
+                                    <input type="hidden" name="exp_id" value="{{ exp.id }}">
+                                    <button type="submit" class="btn btn-danger btn-sm" 
+                                            onclick="return confirm('Delete this experience entry?')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="text-center py-5">
+                <p class="text-muted" style="font-size: 1.1rem;">
+                    <i class="fas fa-briefcase" style="font-size: 3rem; color: #ddd; margin-bottom: 20px;"></i><br>
+                    No work experience added yet.<br>
+                    It's completely optional — add when you're ready!
+                </p>
+            </div>
+        {% endif %}
+
+        <!-- Back Button -->
+        <div style="text-align:center; margin-top:60px;">
+            <a href="{% url 'dashboard:dashboard' %}" class="btn btn-secondary btn-lg">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-// Theme color selection visual feedback
+// Skills Tag Input - Perfectly Working
+document.addEventListener('DOMContentLoaded', function() {
+    const skillsInput = document.getElementById('id_skills');
+    const container = document.getElementById('skillsContainer');
+
+    if (!skillsInput || !container) return;
+
+    function loadSkills() {
+        if (skillsInput.value) {
+            skillsInput.value.split(',')
+                .map(s => s.trim())
+                .filter(s => s)
+                .forEach(skill => addTag(skill));
+        }
+    }
+
+    function addTag(text) {
+        const exists = Array.from(container.querySelectorAll('.tag span'))
+            .some(span => span.textContent.trim() === text);
+        if (exists) return;
+
+        const tag = document.createElement('div');
+        tag.className = 'tag';
+        tag.innerHTML = `
+            <span>${text}</span>
+            <button type="button" class="tag-remove"><i class="fas fa-times"></i></button>
+        `;
+
+        tag.querySelector('.tag-remove').onclick = () => {
+            tag.remove();
+            updateInput();
+        };
+
+        container.appendChild(tag);
+    }
+
+    function updateInput() {
+        const tags = Array.from(container.querySelectorAll('.tag span'))
+            .map(s => s.textContent.trim())
+            .join(',');
+        skillsInput.value = tags;
+    }
+
+    skillsInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ',') {
+            e.preventDefault();
+            const val = skillsInput.value.trim();
+            if (val) {
+                addTag(val);
+                skillsInput.value = '';
+                updateInput();
+            }
+        }
+    });
+
+    skillsInput.addEventListener('blur', () => {
+        const val = skillsInput.value.trim();
+        if (val) {
+            addTag(val);
+            skillsInput.value = '';
+            updateInput();
+        }
+    });
+
+    loadSkills();
+});
+
+// Theme Color Feedback
 document.querySelectorAll('input[name="theme_color"]').forEach(radio => {
     radio.addEventListener('change', function() {
         document.querySelectorAll('input[name="theme_color"]').forEach(r => {
             const label = document.querySelector(`label[for="${r.id}"]`);
-            if (r.checked) {
-                label.style.border = '4px solid #fff';
-                label.style.boxShadow = `0 0 0 2px ${this.value}`;
-            } else {
-                label.style.border = '4px solid transparent';
-                label.style.boxShadow = `0 0 0 2px ${r.value}`;
+            if (label) {
+                label.style.border = r.checked ? '5px solid #fff' : '5px solid transparent';
             }
         });
     });
 });
+
+// Optional: Hide end date when "Current" is checked
+const currentCheck = document.getElementById('id_current');
+const endDateGroup = document.querySelector('.form-group:has(#id_end_date)');
+
+if (currentCheck && endDateGroup) {
+    function toggleEndDate() {
+        if (currentCheck.checked) {
+            endDateGroup.style.opacity = '0.5';
+            endDateGroup.querySelector('input').disabled = true;
+        } else {
+            endDateGroup.style.opacity = '1';
+            endDateGroup.querySelector('input').disabled = false;
+        }
+    }
+    currentCheck.addEventListener('change', toggleEndDate);
+    toggleEndDate(); // Initial state
+}
 </script>
 {% endblock %}

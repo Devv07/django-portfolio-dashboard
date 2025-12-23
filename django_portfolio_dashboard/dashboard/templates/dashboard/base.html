@@ -19,7 +19,8 @@
             --primary-light: {{ settings.theme_color|default:"#4361ee" }}20;
         }
     </style>
-    
+    {% block extra_css %}
+    {% endblock %}
     {% block extra_head %}{% endblock %}
 </head>
 <body>
