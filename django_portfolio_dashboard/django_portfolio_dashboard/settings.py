@@ -125,17 +125,18 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
+STATICFILES_DIRS = [
+    BASE_DIR.parent / "static",
+]
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# Redirect after login
-LOGIN_REDIRECT_URL = '/dashboard/'
+# settings.py
 
-# Redirect after logout
-LOGOUT_REDIRECT_URL = 'login'  # URL name for login page
-
-# Optional: Login URL (for @login_required decorators)
-LOGIN_URL = 'login'
+LOGIN_URL = '/dashboard/login/'          # Where unauthenticated users are redirected
+LOGIN_REDIRECT_URL = '/dashboard/'       # After successful login
+LOGOUT_REDIRECT_URL = '/dashboard/login/'  # After logout (backup)
 
 
 # Default primary key field type

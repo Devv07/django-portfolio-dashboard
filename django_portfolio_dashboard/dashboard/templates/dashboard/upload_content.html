@@ -43,9 +43,12 @@
                 {{ blog_form.content.errors }}
             </div>
 
+            <!-- Blog Tags -->
             <div class="form-group">
                 <label>Tags (comma separated)</label>
                 {{ blog_form.tags }}
+                <div class="tag-input" id="blogTagsContainer"></div>
+                <small>Type tag and press Enter</small>
             </div>
 
             <div class="form-row">
@@ -96,9 +99,12 @@
                 {{ project_form.description.errors }}
             </div>
 
+            <!-- Project Tools -->
             <div class="form-group">
                 <label>Tools & Technologies</label>
                 {{ project_form.tools }}
+                <div class="tag-input" id="projectToolsContainer"></div>
+                <small>Type tool and press Enter</small>
             </div>
 
             <div class="form-row">

@@ -185,3 +185,90 @@ if (notificationBtn && notificationDropdown) {
         });
     }
 }
+
+
+// Unified Tag Input for Skills, Blog Tags, and Project Tools
+document.addEventListener('DOMContentLoaded', function() {
+    // Generic function for any tag input
+    function setupTagInput(inputId, containerId) {
+        const input = document.getElementById(inputId);
+        const container = document.getElementById(containerId);
+
+        if (!input || !container) return;
+
+        // Load existing tags on page load
+        function loadExistingTags() {
+            if (input.value.trim()) {
+                const tags = input.value.split(',')
+                    .map(t => t.trim())
+                    .filter(t => t.length > 0);
+                tags.forEach(tag => createTag(tag));
+                input.value = ''; // Clear input after loading
+            }
+        }
+
+        // Create a tag element
+        function createTag(text) {
+            text = text.trim();
+            if (!text) return;
+
+            // Prevent duplicates
+            const exists = Array.from(container.querySelectorAll('.tag span'))
+                .some(span => span.textContent.trim().toLowerCase() === text.toLowerCase());
+            if (exists) return;
+
+            const tag = document.createElement('div');
+            tag.className = 'tag';
+            tag.innerHTML = `
+                <span>${text}</span>
+                <button type="button" class="tag-remove"><i class="fas fa-times"></i></button>
+            `;
+
+            tag.querySelector('.tag-remove').addEventListener('click', () => {
+                tag.remove();
+                updateHiddenInput();
+            });
+
+            container.appendChild(tag);
+            updateHiddenInput();
+        }
+
+        // Update the hidden/original input with current tags
+        function updateHiddenInput() {
+            const currentTags = Array.from(container.querySelectorAll('.tag span'))
+                .map(span => span.textContent.trim())
+                .join(',');
+            input.value = currentTags;
+        }
+
+        // Add tag on Enter
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // Prevent form submit
+                const value = input.value.trim();
+                if (value) {
+                    createTag(value);
+                    input.value = ''; // Clear input
+                    input.focus(); // Focus back for next tag
+                }
+            }
+        });
+
+        // Add tag on blur (click outside)
+        input.addEventListener('blur', function() {
+            const value = input.value.trim();
+            if (value) {
+                createTag(value);
+                input.value = ''; // Clear input
+            }
+        });
+
+        // Load existing on start
+        loadExistingTags();
+    }
+
+    // Initialize for all 3 fields
+    setupTagInput('id_skills', 'skillsContainer');           // Settings Skills
+    setupTagInput('id_tags', 'blogTagsContainer');           // Blog Tags
+    setupTagInput('id_tools', 'projectToolsContainer');     // Project Tools
+});

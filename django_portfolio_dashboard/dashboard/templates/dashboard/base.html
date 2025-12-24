@@ -4,7 +4,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{{ settings.portfolio_title|default:"My Portfolio" }}</title>
+    <title>{{ settings.professional_title|default:"My Portfolio" }}</title>
     <meta name="description" content="{{ settings.portfolio_description|default:"Welcome to my data portfolio" }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -72,7 +72,7 @@
                     </a>
                 </li>
                 <li>
-                    <form method="post" action="{% url 'logout' %}">
+                    <form method="post" action="{% url 'dashboard:logout' %}">
                         {% csrf_token %}
                         <button type="submit" style="
                             border:none;
@@ -105,7 +105,11 @@
                     </div>
                     <div>
                         <div class="user-name">{{ request.user.get_full_name|default:request.user.username }}</div>
-                        <div class="user-role">Data Analyst</div>
+                        <div class="user-role">
+                            {% if settings.professional_title %}
+                                <h4>{{ settings.professional_title }}</h4>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -120,7 +124,7 @@
                         <i class="fas fa-bars"></i>
                     </div>
                     <div class="page-title">
-                        <h1>{{ page_title|default:settings.portfolio_title|default:"Portfolio Dashboard" }}</h1>
+                        <h1>Portfolio Dashboard</h1>
                         <p>{{ page_description|default:"Manage your portfolio content and analyze performance" }}</p>
                     </div>
                     <div class="header-actions">

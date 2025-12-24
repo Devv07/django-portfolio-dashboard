@@ -6,7 +6,7 @@
     <div class="upload-section" style="max-width: 900px; margin: 0 auto;">
         <div class="section-title">
             <h2>Portfolio Settings</h2>
-            <p>Personalize your professional profile and resume</p>
+            <p>Fill in your professional details (required fields marked with *)</p>
         </div>
 
         {% if messages %}
@@ -18,7 +18,7 @@
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
 
-            <!-- Profile Picture -->
+            <!-- Profile Picture (Required) -->
             <div class="text-center mb-5">
                 <div class="user-avatar large" style="width: 160px; height: 160px; margin: 0 auto 25px; border: 4px solid var(--primary); border-radius: 50%; overflow: hidden;">
                     {% if form.instance.profile_picture %}
@@ -28,70 +28,69 @@
                     {% endif %}
                 </div>
                 <div class="form-group">
-                    <label>Profile Picture (optional)</label>
+                    <label>Profile Picture <span style="color:red;">*</span></label>
                     {{ form.profile_picture }}
                     {{ form.profile_picture.errors }}
-                    <small>Square image recommended</small>
+                    <small>Required - square image recommended</small>
                 </div>
             </div>
 
-            <!-- Personal Info -->
+            <!-- Personal Info (Required) -->
             <div class="form-row">
                 <div class="form-group">
-                    <label>First Name (optional)</label>
+                    <label>First Name <span style="color:red;">*</span></label>
                     {{ form.first_name }}
                     {{ form.first_name.errors }}
                 </div>
                 <div class="form-group">
-                    <label>Last Name (optional)</label>
+                    <label>Last Name <span style="color:red;">*</span></label>
                     {{ form.last_name }}
                     {{ form.last_name.errors }}
                 </div>
             </div>
 
             <div class="form-group">
-                <label>Location (optional)</label>
+                <label>Location</label>
                 {{ form.location }}
                 {{ form.location.errors }}
-                <small>e.g. San Francisco, CA | Remote</small>
             </div>
 
             <div class="form-group">
-                <label>Portfolio Title (optional)</label>
-                {{ form.portfolio_title }}
-                {{ form.portfolio_title.errors }}
+                <label>Professional Title <span style="color:red;">*</span></label>
+                {{ form.professional_title }}
+                {{ form.professional_title.errors }}
             </div>
 
             <div class="form-group">
-                <label>About Me (Bio) (optional)</label>
+                <label>About Me (Bio) <span style="color:red;">*</span></label>
                 {{ form.bio }}
                 {{ form.bio.errors }}
             </div>
 
-            <!-- Skills -->
+            <!-- Skills (Required) -->
             <div class="form-group">
-                <label>Skills & Technologies (optional)</label>
+                <label>Skills & Technologies <span style="color:red;">*</span></label>
                 {{ form.skills }}
                 <div class="tag-input" id="skillsContainer"></div>
                 {{ form.skills.errors }}
-                <small>Type and press Enter</small>
+                <small>Type skill and press Enter</small>
             </div>
 
-            <!-- Contact -->
+            <!-- Contact (Required) -->
             <div class="form-row">
                 <div class="form-group">
-                    <label>Contact Email (optional)</label>
+                    <label>Contact Email <span style="color:red;">*</span></label>
                     {{ form.contact_email }}
                     {{ form.contact_email.errors }}
                 </div>
                 <div class="form-group">
-                    <label>Phone (optional)</label>
+                    <label>Phone <span style="color:red;">*</span></label>
                     {{ form.contact_phone }}
                     {{ form.contact_phone.errors }}
                 </div>
             </div>
 
-            <!-- Social Links -->
+            <!-- Social Links (Optional) -->
             <div class="form-group">
                 <label>Social Links (optional)</label>
                 <div class="mb-3">{{ form.github_link }} <small>GitHub</small></div>
@@ -119,7 +118,7 @@
             </div>
 
             <!-- Save Button -->
-            <div style="text-align:center; margin:50px 0;">
+            <div style="text-align:center; margin:60px 0;">
                 <button type="submit" name="action" value="save" class="btn btn-primary btn-lg">
                     <i class="fas fa-save"></i> Save All Changes
                 </button>
@@ -129,12 +128,12 @@
             </div>
         </form>
 
-        <!-- Work Experience Section -->
+        <!-- Work Experience Section - Completely Optional -->
         <hr style="margin: 80px 0; border: none; border-top: 3px solid #eee;">
 
         <div class="section-title">
-            <h2>Work Experience</h2>
-            <p>Add your professional journey (completely optional)</p>
+            <h2>Work Experience (Optional)</h2>
+            <p>Add your professional journey — not required</p>
         </div>
 
         <!-- Add New Experience -->
@@ -147,18 +146,18 @@
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Position (optional)</label>
+                            <label>Position</label>
                             {{ exp_form.position }}
                         </div>
                         <div class="form-group">
-                            <label>Company (optional)</label>
+                            <label>Company</label>
                             {{ exp_form.company }}
                         </div>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Level (optional)</label>
+                            <label>Level</label>
                             {{ exp_form.level }}
                         </div>
                         <div class="form-group">
@@ -172,18 +171,18 @@
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Start Date (optional)</label>
+                            <label>Start Date</label>
                             {{ exp_form.start_date }}
                         </div>
                         <div class="form-group">
-                            <label>End Date (optional)</label>
+                            <label>End Date</label>
                             {{ exp_form.end_date }}
                             <small>Leave blank if current</small>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label>Description (optional)</label>
+                        <label>Description</label>
                         {{ exp_form.description }}
                     </div>
 
@@ -247,7 +246,7 @@
                 <p class="text-muted" style="font-size: 1.1rem;">
                     <i class="fas fa-briefcase" style="font-size: 3rem; color: #ddd; margin-bottom: 20px;"></i><br>
                     No work experience added yet.<br>
-                    It's completely optional — add when you're ready!
+                    It's optional — add when you're ready!
                 </p>
             </div>
         {% endif %}
@@ -264,25 +263,32 @@
 
 {% block extra_js %}
 <script>
-// Skills Tag Input - Perfectly Working
+// Skills & Technologies - FINAL FIXED VERSION
 document.addEventListener('DOMContentLoaded', function() {
     const skillsInput = document.getElementById('id_skills');
     const container = document.getElementById('skillsContainer');
 
     if (!skillsInput || !container) return;
 
+    // Load existing skills from hidden field
     function loadSkills() {
-        if (skillsInput.value) {
-            skillsInput.value.split(',')
+        if (skillsInput.value.trim()) {
+            const skills = skillsInput.value.split(',')
                 .map(s => s.trim())
-                .filter(s => s)
-                .forEach(skill => addTag(skill));
+                .filter(s => s.length > 0);
+            skills.forEach(skill => addTag(skill));
+            skillsInput.value = ''; // Clear the input after loading
         }
     }
 
+    // Add a tag
     function addTag(text) {
+        text = text.trim();
+        if (text === '') return;
+
+        // Prevent duplicates (case-insensitive)
         const exists = Array.from(container.querySelectorAll('.tag span'))
-            .some(span => span.textContent.trim() === text);
+            .some(span => span.textContent.trim().toLowerCase() === text.toLowerCase());
         if (exists) return;
 
         const tag = document.createElement('div');
@@ -292,46 +298,51 @@ document.addEventListener('DOMContentLoaded', function() {
             <button type="button" class="tag-remove"><i class="fas fa-times"></i></button>
         `;
 
-        tag.querySelector('.tag-remove').onclick = () => {
+        tag.querySelector('.tag-remove').addEventListener('click', () => {
             tag.remove();
-            updateInput();
-        };
+            updateHiddenInput();
+        });
 
         container.appendChild(tag);
     }
 
-    function updateInput() {
+    // Update the hidden input with current tags
+    function updateHiddenInput() {
         const tags = Array.from(container.querySelectorAll('.tag span'))
-            .map(s => s.textContent.trim())
+            .map(span => span.textContent.trim())
             .join(',');
         skillsInput.value = tags;
     }
 
-    skillsInput.addEventListener('keydown', e => {
-        if (e.key === 'Enter' || e.key === ',') {
-            e.preventDefault();
-            const val = skillsInput.value.trim();
-            if (val) {
-                addTag(val);
-                skillsInput.value = '';
-                updateInput();
+    // Handle Enter key
+    skillsInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault(); // Prevent form submission
+            const value = skillsInput.value.trim();
+            if (value) {
+                addTag(value);
+                skillsInput.value = ''; // Clear the input
+                updateHiddenInput();
+                skillsInput.focus(); // Keep focus for next skill
             }
         }
     });
 
-    skillsInput.addEventListener('blur', () => {
-        const val = skillsInput.value.trim();
-        if (val) {
-            addTag(val);
-            skillsInput.value = '';
-            updateInput();
+    // Handle blur (click outside)
+    skillsInput.addEventListener('blur', function() {
+        const value = skillsInput.value.trim();
+        if (value) {
+            addTag(value);
+            skillsInput.value = ''; // Clear the input
+            updateHiddenInput();
         }
     });
 
+    // Initial load of existing skills
     loadSkills();
 });
 
-// Theme Color Feedback
+// Theme Color Feedback (unchanged)
 document.querySelectorAll('input[name="theme_color"]').forEach(radio => {
     radio.addEventListener('change', function() {
         document.querySelectorAll('input[name="theme_color"]').forEach(r => {
@@ -343,7 +354,7 @@ document.querySelectorAll('input[name="theme_color"]').forEach(radio => {
     });
 });
 
-// Optional: Hide end date when "Current" is checked
+// Current Job toggle for End Date (unchanged)
 const currentCheck = document.getElementById('id_current');
 const endDateGroup = document.querySelector('.form-group:has(#id_end_date)');
 
@@ -358,7 +369,7 @@ if (currentCheck && endDateGroup) {
         }
     }
     currentCheck.addEventListener('change', toggleEndDate);
-    toggleEndDate(); // Initial state
+    toggleEndDate();
 }
 </script>
 {% endblock %}

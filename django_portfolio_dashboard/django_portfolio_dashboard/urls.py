@@ -1,22 +1,30 @@
-from django.conf import settings
+# your_project/urls.py (main project urls.py)
+
 from django.contrib import admin
 from django.urls import path, include
-from django.shortcuts import redirect
 from django.contrib.auth import views as auth_views
+from django.conf import settings
 from django.conf.urls.static import static
-
-def root_redirect(request):
-    return redirect('login')   # name of login url
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', root_redirect),   # 👈 this fixes 404
-    path('dashbaord/', include('django.contrib.auth.urls')),
+
+    # Public Portfolio - accessible to everyone
+    path('', include('portfolio.urls')),
+
+    # Private Dashboard
     path('dashboard/', include('dashboard.urls')),
-    path('logout/', auth_views.LogoutView.as_view(next_page='dashboard:login'), name='logout'),
+
+    # Dashboard Login Page
+    path('dashboard/login/', auth_views.LoginView.as_view(
+        template_name='dashboard/login.html'  # your custom login template
+    ), name='dashboard_login'),
+
+    # Dashboard Logout - FIXED: explicit redirect to your login page
+    path('dashboard/logout/', auth_views.LogoutView.as_view(
+        next_page='/dashboard/login/'  # ← This fixes the error
+    ), name='dashboard_logout'),
 ]
 
-
-# For media files in development (optional but useful)
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

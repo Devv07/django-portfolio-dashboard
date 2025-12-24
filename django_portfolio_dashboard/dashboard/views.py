@@ -420,7 +420,7 @@ def portfolio_settings(request):
             settings.profile_picture = None
             settings.first_name = ""
             settings.last_name = ""
-            settings.portfolio_title = "My Portfolio"
+            settings.professional_title = "Data Analyst"
             settings.bio = ""
             settings.skills = ""
             settings.location = ""

@@ -57,7 +57,7 @@ class PortfolioSettingsForm(forms.ModelForm):
         model = PortfolioSettings
         fields = [
             'profile_picture', 'first_name', 'last_name',
-            'portfolio_title', 'bio', 'skills',
+            'professional_title', 'bio', 'skills',
             'contact_email', 'contact_phone',
             'location',
             'github_link', 'linkedin_link', 'twitter_link', 'instagram_link',
@@ -67,7 +67,7 @@ class PortfolioSettingsForm(forms.ModelForm):
             'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'John'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Doe'}),
             'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Kathmandu, Nepal'}),
-            'portfolio_title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'My Data Portfolio'}),
+            'professional_title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Data Analyst'}),
             'bio': forms.Textarea(attrs={'class': 'form-control', 'rows': 5, 'placeholder': 'I am a passionate data analyst...'}),
             'skills': forms.TextInput(attrs={'class': 'form-control', 'id': 'id_skills', 'placeholder': 'Python, SQL, Tableau...'}),
             'contact_email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'john@example.com'}),

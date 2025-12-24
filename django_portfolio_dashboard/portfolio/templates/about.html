@@ -1,0 +1,10 @@
+<div class="skills">
+    {% for skill in skills %}
+    <span class="skill-tag">
+        {% if skill.icon_class %}
+        <i class="{{ skill.icon_class }}"></i>
+        {% endif %}
+        {{ skill.name }}
+    </span>
+    {% endfor %}
+</div>

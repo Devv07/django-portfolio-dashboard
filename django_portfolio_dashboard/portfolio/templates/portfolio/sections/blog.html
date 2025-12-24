@@ -1,0 +1,60 @@
+<section id="blog">
+    <div class="container">
+        <div class="section-title">
+            <h2>Latest Blog Posts</h2>
+            <p>Insights, tutorials, and thoughts on data analysis, visualization, and the data industry.</p>
+        </div>
+        <div class="blogs-container">
+            {% for post in blog_posts %}
+            <div class="blog-card">
+                <div class="blog-img">
+                    <img src="{{ post.image }}" alt="{{ post.title }}">
+                </div>
+                <div class="blog-content">
+                    <div class="blog-header">
+                        <span class="blog-category">{{ post.category }}</span>
+                        <h3>{{ post.title }}</h3>
+                        <div class="blog-meta">
+                            <span><i class="far fa-calendar"></i> {{ post.date|date:"F d, Y" }}</span>
+                            <span><i class="far fa-clock"></i> {{ post.read_time }}</span>
+                        </div>
+                    </div>
+                    <p>{{ post.excerpt }}</p>
+                    
+                    <div class="blog-interaction">
+                        <div class="interaction-buttons">
+                            <button class="interaction-btn like-btn" data-blog="{{ post.id }}">
+                                <i class="far fa-heart"></i>
+                                <span class="like-count">{{ post.likes }}</span>
+                            </button>
+                            <button class="interaction-btn comment-btn" data-blog="{{ post.id }}">
+                                <i class="far fa-comment"></i>
+                                <span class="comment-count">{{ post.comments_count }}</span>
+                            </button>
+                            <div class="share-dropdown">
+                                <button class="interaction-btn share-btn">
+                                    <i class="fas fa-share-alt"></i> Share
+                                </button>
+                                <div class="share-menu">
+                                    <a href="#"><i class="fab fa-twitter"></i> Twitter</a>
+                                    <a href="#"><i class="fab fa-linkedin"></i> LinkedIn</a>
+                                    <a href="#"><i class="fab fa-facebook"></i> Facebook</a>
+                                    <a href="#"><i class="fas fa-link"></i> Copy Link</a>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="#" class="btn btn-primary">Read More</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p>No blog posts yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Comments Modal (kept here or in base.html) -->
+<div class="modal-overlay" id="commentsModal">
+    <!-- ... same as original ... -->
+</div>

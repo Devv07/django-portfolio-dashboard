@@ -75,13 +75,10 @@ class PortfolioSettings(models.Model):
     profile_picture = models.ImageField(upload_to='profiles/', blank=True, null=True)
     first_name = models.CharField(max_length=100, blank=True)
     last_name = models.CharField(max_length=100, blank=True)
-    portfolio_title = models.CharField(max_length=200, default="My Portfolio")
+    professional_title = models.CharField(max_length=255, blank=True, null=True)
     bio = models.TextField(blank=True)
-
-    # Skills (stored as comma-separated string)
-    skills = models.CharField(max_length=500, blank=True, help_text="Comma-separated")
+    skills = models.CharField(max_length=500, blank=True)
     location = models.CharField(max_length=100, blank=True)
-    # Contact
     contact_email = models.EmailField(blank=True)
     contact_phone = models.CharField(max_length=30, blank=True)
 
@@ -107,7 +104,7 @@ class PortfolioSettings(models.Model):
     @property
     def skills_list(self):
         if self.skills:
-            return [skill.strip() for skill in self.skills.split(',') if skill.strip()]
+            return [s.strip() for s in self.skills.split(',') if s.strip()]
         return []
 
     def __str__(self):

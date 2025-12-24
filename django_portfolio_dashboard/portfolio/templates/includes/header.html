@@ -1,0 +1,46 @@
+<header>
+    <div class="container">
+        <nav>
+            <a href="#home" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-laptop-code"></i>
+                </div>
+                {{ settings.portfolio_title|default:"Portfolio" }}
+            </a>
+            <div class="mobile-toggle">
+                <i class="fas fa-bars"></i>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#home" class="active">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#projects">Projects</a></li>
+                <li><a href="#blog">Blog</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<section id="home" class="hero">
+    <div class="container">
+        <div class="hero-content">
+            <h1>Transforming Data into Strategic Insights</h1>
+            <p>{{ settings.bio|default:"Welcome to my data analysis portfolio showcasing projects, insights, and skills." }}</p>
+            
+            <div class="hero-badges">
+                <div class="badge"><i class="fas fa-check-circle"></i> Data Analyst</div>
+                <div class="badge"><i class="fas fa-project-diagram"></i> {{ projects.count }} Projects</div>
+                <div class="badge"><i class="fas fa-blog"></i> {{ blog_posts.count }} Blog Posts</div>
+            </div>
+            
+            <div class="hero-buttons">
+                <a href="#projects" class="btn btn-primary">
+                    <i class="fas fa-rocket"></i> View Projects
+                </a>
+                <a href="#contact" class="btn btn-secondary">
+                    <i class="fas fa-paper-plane"></i> Get In Touch
+                </a>
+            </div>
+        </div>
+    </div>
+</section>

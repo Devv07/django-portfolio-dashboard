@@ -1,0 +1,30 @@
+<section id="about">
+    <div class="container">
+        <div class="section-title">
+            <h2>About Me</h2>
+            <p>Data analyst specializing in extracting insights from complex datasets and communicating findings through compelling visualizations.</p>
+        </div>
+        <div class="about-content">
+            <div class="about-img">
+                <img src="https://images.unsplash.com/photo-1551836026-d5c2c5af78e4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" alt="Data Analyst">
+            </div>
+            <div class="about-text">
+                <h3>Hi, I'm Alex Johnson</h3>
+                <p>I'm a passionate data analyst with expertise in statistical analysis, predictive modeling, and data visualization...</p>
+                <p>My work focuses on transforming raw data into actionable insights that drive business growth...</p>
+                <p>In addition to my analytical skills, I'm proficient in creating interactive dashboards...</p>
+                
+                <div class="skills">
+                    {% for skill in skills %}
+                    <span class="skill-tag">
+                        {% if skill.icon_class %}
+                        <i class="{{ skill.icon_class }}"></i>
+                        {% endif %}
+                        {{ skill.name }}
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
